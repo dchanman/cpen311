@@ -7,4 +7,6 @@
 *.wlf
 *.mti
 *.mpf
-
+*.qsf
+*.qpf
+*/db/*
