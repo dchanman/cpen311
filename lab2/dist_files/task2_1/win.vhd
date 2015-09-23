@@ -40,7 +40,7 @@ BEGIN
 	else
 		bet1_wins <= '0';
 	end if;
-END;
+END PROCESS;
 
 -- process for checking if bet2 wins
 -- bet2 is a color bet
@@ -48,7 +48,7 @@ END;
 bet2_checker : PROCESS(ALL)
 	variable spin_result_unsigned : unsigned(5 downto 0);
 BEGIN
-	spin_result_unsigned := to_unsigned(spin_result_latched, spin_result_latched'length);
+	spin_result_unsigned := unsigned(spin_result_latched);
 	
 	-- Default value, bet2_wins is false
 	bet2_wins <= '0';
@@ -56,7 +56,7 @@ BEGIN
 	if (spin_result_unsigned = 0) then
 		-- [0] has no color
 		bet2_wins <= '0';
-	else if(spin_result_unsigned < 19) then
+	elsif(spin_result_unsigned < 19) then
 		-- for values [1,18], odd numbers are RED, even are BLACK
 		if (spin_result_latched(0) = bet2_colour) then
 			bet2_wins <= '1';
@@ -67,33 +67,33 @@ BEGIN
 			bet2_wins <= '1';
 		end if;
 	end if;
-END;
+END PROCESS;
 
 -- process for checking if bet3 wins
 -- bet3 is a dozen bet for ranges [1,12], [13,24], [25,36]
 bet3_checker : PROCESS(ALL)
 	variable spin_result_unsigned : unsigned(5 downto 0);
 BEGIN
-	spin_result_unsigned := to_unsigned(spin_result_latched, spin_result_latched'length);
+	spin_result_unsigned := unsigned(spin_result_latched);
 	
 	bet3_wins <= '0';
 	
 	case bet3_dozen is
 		when "00" =>
-			if ((spin_result_unsigned >= 1) and (spin_result_unsigned <= 12)) then
+		  if ((spin_result_unsigned >= 1) and (spin_result_unsigned <= 12)) then
 				bet3_wins <= '1';
 			end if;
 		when "01" =>
 			if ((spin_result_unsigned >= 13) and (spin_result_unsigned <= 24)) then
 				bet3_wins <= '1';
 			end if;
-		when "02" =>
+		when "10" =>
 			if ((spin_result_unsigned >= 25) and (spin_result_unsigned <= 36)) then
 				bet3_wins <= '1';
 			end if;
 		when others =>
 			bet3_wins <= '0';
 	end case;
-END;
+END PROCESS;
 
 END;
