@@ -30,5 +30,59 @@ END win;
 
 ARCHITECTURE behavioural OF win IS
 BEGIN
---  Your code goes here
+--  Your code goes here'
+  process(all) begin
+    if(bet1_value = spin_result_latched) then
+      bet1_wins <= '1';
+    else
+      bet1_wins <= '0';
+    end if;
+  end process;
+  
+  process(all) begin
+    case to_integer(spin_result_latched) is
+    when 1 | 3 | 5 | 7 | 9 | 12 | 14 | 16 | 18 | 19 | 21 | 23 | 25 | 27 | 30 | 32 | 34 | 36 =>
+      if(bet2_colour = '1') then
+        bet2_wins <= '1';
+      else 
+        bet2_wins <= '0';
+      end if;
+    when 2 | 4 | 6 | 8 | 10 | 11 | 13 | 15 | 17 | 20 | 22 | 24 | 26 | 28 | 29 | 31 | 33 | 35 =>
+      if(bet2_colour = '0') then
+        bet2_wins <= '1';
+      else 
+        bet2_wins <= '0';
+      end if;
+    when others => bet2_wins <= '0';
+    end case;
+  end process;
+  
+  process(all) begin
+    case bet3_dozen is
+    when "00" =>
+      if(spin_result_latched < 13) then
+        bet3_wins <= '1';
+        if(spin_result_latched = 0) then
+          bet3_wins <= '0';
+        end if;
+      else
+        bet3_wins <= '0';
+      end if;
+    when "01" =>
+      if((spin_result_latched > 12) and (spin_result_latched < 25)) then
+        bet3_wins <= '1';
+      else 
+        bet3_wins <= '0';
+      end if;
+    when "10" =>
+      if((spin_result_latched > 24) and (spin_result_latched < 37)) then
+        bet3_wins <= '1';
+      else 
+        bet3_wins <= '0';
+      end if;
+    when others => bet3_wins <= '0';
+    end case;
+  end process;  
+    
+    
 END;

@@ -3,3 +3,77 @@ K3
 13
 cModel Technology
 dC:\Users\Graeme\Desktop\CPEN 311\Lab1
+Ewin
+Z0 w1442971598
+Z1 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
+Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
+Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
+Z4 dZ:\cpen311\lab2\dist_files
+Z5 8Z:/cpen311/lab2/dist_files/task2_1/win.vhd
+Z6 FZ:/cpen311/lab2/dist_files/task2_1/win.vhd
+l0
+L20
+VT7CJSQghPS6VQXJPA:HXJ3
+Z7 OV;C;10.1d;51
+33
+Z8 !s108 1442971601.287000
+Z9 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task2_1/win.vhd|
+Z10 !s107 Z:/cpen311/lab2/dist_files/task2_1/win.vhd|
+Z11 o-work work -2008 -explicit -O0
+Z12 tExplicit 1
+!s100 c0YARTo:@>Vg:8eBN6E``2
+!i10b 1
+Abehavioural
+R1
+R2
+R3
+DEx4 work 3 win 0 22 T7CJSQghPS6VQXJPA:HXJ3
+l32
+L31
+VWT?QD?=]PM32LmB39YRjf3
+R7
+33
+R8
+R9
+R10
+R11
+R12
+!s100 C24C??0cW2oIa=70aKP8A1
+!i10b 1
+Ewin_tb
+Z13 w1442969109
+R1
+R2
+R3
+R4
+Z14 8Z:/cpen311/lab2/dist_files/task2_2/win_tb.vhd
+Z15 FZ:/cpen311/lab2/dist_files/task2_2/win_tb.vhd
+l0
+L19
+V_f^Q3QFM<>QaaN0n?BYPl0
+!s100 KQX6JHRmT^lW5EcReIaA60
+R7
+33
+!i10b 1
+Z16 !s108 1442971601.621000
+Z17 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task2_2/win_tb.vhd|
+Z18 !s107 Z:/cpen311/lab2/dist_files/task2_2/win_tb.vhd|
+R11
+R12
+Abehavioural
+R1
+R2
+R3
+Z19 DEx4 work 6 win_tb 0 22 _f^Q3QFM<>QaaN0n?BYPl0
+l87
+L25
+Z20 VDa2@c;NPELFYeim6JAa_V0
+Z21 !s100 ;=od8iF7Z;Ei_>hF]5XI[3
+R7
+33
+!i10b 1
+R16
+R17
+R18
+R11
+R12
