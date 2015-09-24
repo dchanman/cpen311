@@ -29,5 +29,30 @@ END new_balance;
 
 ARCHITECTURE behavioural OF new_balance IS
 BEGIN
-  -- Your code goes here
+new_balance_calculator : PROCESS(ALL)
+  variable new_balance : unsigned(11 downto 0);
+BEGIN
+  new_balance := money;
+  
+  if (bet1_wins = '1') then
+    new_balance := new_balance + to_unsigned(35,9)*value1;
+  else
+    new_balance := new_balance - to_unsigned(1,9)*value1;
+  end if;
+  
+  if (bet2_wins = '1') then
+    new_balance := new_balance + to_unsigned(1,9)*value2;
+  else
+    new_balance := new_balance - to_unsigned(1,9)*value2;
+  end if;
+  
+  if (bet3_wins = '1') then
+    new_balance := new_balance + to_unsigned(2,9)*value3;
+  else
+    new_balance := new_balance - to_unsigned(1,9)*value3;
+  end if;
+  
+  new_money <= new_balance;
+  
+END PROCESS;
 END;
