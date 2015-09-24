@@ -53,20 +53,51 @@ BEGIN
 	-- Default value, bet2_wins is false
 	bet2_wins <= '0';
 	
-	if (spin_result_unsigned = 0) then
-		-- [0] has no color
-		bet2_wins <= '0';
-	elsif(spin_result_unsigned < 19) then
-		-- for values [1,18], odd numbers are RED, even are BLACK
-		if (spin_result_latched(0) = bet2_colour) then
-			bet2_wins <= '1';
-		end if;
-	else
-		-- for values [19,36], even numbers are RED, odd are BLACK
-		if (spin_result_latched(0) = not bet2_colour) then
-			bet2_wins <= '1';
-		end if;
-	end if;
+	if (bet2_colour = '1') then
+	  -- RED spins
+    if (spin_result_unsigned = 1 or
+        spin_result_unsigned = 3 or
+        spin_result_unsigned = 5 or
+        spin_result_unsigned = 7 or
+        spin_result_unsigned = 9 or
+        spin_result_unsigned = 12 or
+        spin_result_unsigned = 14 or
+        spin_result_unsigned = 16 or
+        spin_result_unsigned = 18 or
+        spin_result_unsigned = 19 or
+        spin_result_unsigned = 21 or
+        spin_result_unsigned = 23 or
+        spin_result_unsigned = 25 or
+        spin_result_unsigned = 27 or
+        spin_result_unsigned = 30 or
+        spin_result_unsigned = 32 or
+        spin_result_unsigned = 34 or
+        spin_result_unsigned = 36) then
+      bet2_wins <= '1';
+    end if;
+  else
+    -- BLACK spins
+    if (spin_result_unsigned = 2 or
+        spin_result_unsigned = 4 or
+        spin_result_unsigned = 6 or
+        spin_result_unsigned = 8 or
+        spin_result_unsigned = 10 or
+        spin_result_unsigned = 11 or
+        spin_result_unsigned = 13 or
+        spin_result_unsigned = 15 or
+        spin_result_unsigned = 17 or
+        spin_result_unsigned = 20 or
+        spin_result_unsigned = 22 or
+        spin_result_unsigned = 24 or
+        spin_result_unsigned = 26 or
+        spin_result_unsigned = 28 or
+        spin_result_unsigned = 29 or
+        spin_result_unsigned = 31 or
+        spin_result_unsigned = 33 or
+        spin_result_unsigned = 35) then
+      bet2_wins <= '1';
+    end if; 
+  end if;
 END PROCESS;
 
 -- process for checking if bet3 wins
