@@ -60,7 +60,7 @@ ARCHITECTURE behavioural OF digit7seg_tb IS
 	(to_unsigned(11,4), "0000011"),
 	(to_unsigned(12,4), "0100111"),
 	(to_unsigned(13,4), "0100001"),
-	(to_unsigned(14,4), "0000100"),
+	(to_unsigned(14,4), "0000110"),
 	(to_unsigned(15,4), "0001110"));             
 
   -- Define the new_balance subblock, which is the component we are testing
