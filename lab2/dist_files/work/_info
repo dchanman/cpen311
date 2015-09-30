@@ -4,7 +4,7 @@ K3
 cModel Technology
 dC:\Users\Graeme\Desktop\CPEN 311\Lab1
 Edigit7seg
-Z0 w1443574093
+Z0 w1443574595
 Z1 DPx4 ieee 11 numeric_std 0 22 O3PF8EB`?j9=z7KT`fn941
 Z2 DPx3 std 6 textio 0 22 5>J:;AW>W0[[dW0I6EN1Q0
 Z3 DPx4 ieee 14 std_logic_1164 0 22 5=aWaoGZSMWIcH0i^f`XF1
@@ -14,15 +14,15 @@ Z6 FZ:/cpen311/lab2/dist_files/task4/digit7seg.vhd
 l0
 L18
 V<DIg_j1oigFB^^`6P:5IW0
-!s100 H0aH4Eh29@=;S@d6m<?RE3
 Z7 OV;C;10.1d;51
 33
-!i10b 1
-Z8 !s108 1443574095.336000
+Z8 !s108 1443574879.528000
 Z9 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task4/digit7seg.vhd|
 Z10 !s107 Z:/cpen311/lab2/dist_files/task4/digit7seg.vhd|
 Z11 o-work work -2008 -explicit -O0
 Z12 tExplicit 1
+!s100 H0aH4Eh29@=;S@d6m<?RE3
+!i10b 1
 Abehavioral
 R1
 R2
@@ -30,32 +30,69 @@ R3
 DEx4 work 9 digit7seg 0 22 <DIg_j1oigFB^^`6P:5IW0
 l27
 L26
-Vf6OON;iCLfnQo>oRnGnW<2
-!s100 QRem]FFZThPO4]MVjBEdo0
+V<LTSm:Uk:BER8UIWmYcR61
 R7
 33
-!i10b 1
 R8
 R9
 R10
 R11
 R12
-Enew_balance
-Z13 w1443573097
+!s100 Y[?6I7SggjCE46Vm6?[Dh2
+!i10b 1
+Edigit7seg_tb
+Z13 w1443574881
 R1
 R2
 R3
 R4
-Z14 8Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd
-Z15 FZ:/cpen311/lab2/dist_files/task3_1/new_balance.vhd
+Z14 8Z:/cpen311/lab2/dist_files/task4/digit7seg_tb.vhd
+Z15 FZ:/cpen311/lab2/dist_files/task4/digit7seg_tb.vhd
+l0
+L19
+Vbg]m>S^4`AO=jYFOKHm[K3
+R7
+32
+Z16 !s108 1443574881.414000
+Z17 !s90 -reportprogress|300|-work|work|-2002|-explicit|Z:/cpen311/lab2/dist_files/task4/digit7seg_tb.vhd|
+Z18 !s107 Z:/cpen311/lab2/dist_files/task4/digit7seg_tb.vhd|
+Z19 o-work work -2002 -explicit -O0
+R12
+!s100 adPei?e0BCk]LUPdLf9EM3
+!i10b 1
+Abehavioural
+R1
+R2
+R3
+DEx4 work 12 digit7seg_tb 0 22 bg]m>S^4`AO=jYFOKHm[K3
+l78
+L25
+VbggdF>ViGR8oR[_97N9ZH2
+R7
+32
+R16
+R17
+R18
+R19
+R12
+!s100 >iWLDl^2A9;iKlNb1W9N:3
+!i10b 1
+Enew_balance
+Z20 w1443573097
+R1
+R2
+R3
+R4
+Z21 8Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd
+Z22 FZ:/cpen311/lab2/dist_files/task3_1/new_balance.vhd
 l0
 L17
 VQ5NzJzT9Q[[V0OU55X;6g0
 R7
 33
-Z16 !s108 1443573100.002000
-Z17 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd|
-Z18 !s107 Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd|
+Z23 !s108 1443573100.002000
+Z24 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd|
+Z25 !s107 Z:/cpen311/lab2/dist_files/task3_1/new_balance.vhd|
 R11
 R12
 !s100 ZOGBXNB`;nEl45CWPTl:G1
@@ -70,29 +107,29 @@ L30
 VL;[DoE<GX@LB>O4AXVRgT1
 R7
 33
-R16
-R17
-R18
+R23
+R24
+R25
 R11
 R12
 !s100 l[k9<XY=lSADXSFb^j6l:1
 !i10b 1
 Enew_balance_tb
-Z19 w1442969109
+Z26 w1442969109
 R1
 R2
 R3
 R4
-Z20 8Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd
-Z21 FZ:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd
+Z27 8Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd
+Z28 FZ:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd
 l0
 L19
 V9g]`:Yn0_GFmPiO:Ab2]<1
 R7
 33
-Z22 !s108 1443573100.387000
-Z23 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd|
-Z24 !s107 Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd|
+Z29 !s108 1443573100.387000
+Z30 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd|
+Z31 !s107 Z:/cpen311/lab2/dist_files/task3_2/new_balance_tb.vhd|
 R11
 R12
 !s100 4SZb]XQXiKgc_OTbOo_[b0
@@ -107,52 +144,109 @@ L25
 VaS32`8WT?:^RJEYXTo:XM2
 R7
 33
-R22
-R23
-R24
+R29
+R30
+R31
 R11
 R12
 !s100 :K0VFc?_Mee^]@N1iO]V]1
 !i10b 1
-Ewin
-Z25 w1442971598
+Eroulette
+w1443576781
 R1
 R2
 R3
 R4
-Z26 8Z:\cpen311\lab2\dist_files\task2_1\win.vhd
-Z27 FZ:\cpen311\lab2\dist_files\task2_1\win.vhd
+8Z:/cpen311/lab2/dist_files/task5/roulette.vhd
+FZ:/cpen311/lab2/dist_files/task5/roulette.vhd
+l0
+L20
+Vzj[Qk5Wb;f0z>NfbY7^`e2
+R7
+33
+R11
+R12
+!s100 a67hSQN7Po7jO81UBA6mZ1
+!i10b 1
+!s108 1443576783.474000
+!s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task5/roulette.vhd|
+!s107 Z:/cpen311/lab2/dist_files/task5/roulette.vhd|
+Espinwheel
+R26
+R1
+R2
+R3
+R4
+Z32 8Z:/cpen311/lab2/dist_files/task5/spinwheel.vhd
+Z33 FZ:/cpen311/lab2/dist_files/task5/spinwheel.vhd
+l0
+L30
+V<ZjF=0GEmJ]R:V0eKzOe03
+R7
+33
+Z34 !s108 1443576783.784000
+Z35 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task5/spinwheel.vhd|
+Z36 !s107 Z:/cpen311/lab2/dist_files/task5/spinwheel.vhd|
+R11
+R12
+!s100 ?zm:T1L12?h;e>1Cl@2Jz3
+!i10b 1
+Abehavioral
+R1
+R2
+R3
+DEx4 work 9 spinwheel 0 22 <ZjF=0GEmJ]R:V0eKzOe03
+l44
+L37
+VlbKcf1O>fjCXoEMc9IX?F1
+!s100 Nhl;T_;Q@G<YENZ<]><[61
+R7
+33
+R34
+R35
+R36
+R11
+R12
+!i10b 1
+Ewin
+Z37 w1442971598
+R1
+R2
+R3
+R4
+Z38 8Z:/cpen311/lab2/dist_files/task2_1/win.vhd
+Z39 FZ:/cpen311/lab2/dist_files/task2_1/win.vhd
 l0
 L20
 VT7CJSQghPS6VQXJPA:HXJ3
+!s100 c0YARTo:@>Vg:8eBN6E``2
 R7
 33
-Z28 !s108 1443571893.805000
-Z29 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:\cpen311\lab2\dist_files\task2_1\win.vhd|
-Z30 !s107 Z:\cpen311\lab2\dist_files\task2_1\win.vhd|
+!i10b 1
+Z40 !s108 1443576784.146000
+Z41 !s90 -reportprogress|300|-work|work|-2008|-explicit|Z:/cpen311/lab2/dist_files/task2_1/win.vhd|
+Z42 !s107 Z:/cpen311/lab2/dist_files/task2_1/win.vhd|
 R11
 R12
-!s100 c0YARTo:@>Vg:8eBN6E``2
-!i10b 1
 Abehavioural
 R1
 R2
 R3
-DEx4 work 3 win 0 22 T7CJSQghPS6VQXJPA:HXJ3
+Z43 DEx4 work 3 win 0 22 T7CJSQghPS6VQXJPA:HXJ3
 l32
 L31
-VWT?QD?=]PM32LmB39YRjf3
+Z44 VWT?QD?=]PM32LmB39YRjf3
+Z45 !s100 C24C??0cW2oIa=70aKP8A1
 R7
 33
-R28
-R29
-R30
+!i10b 1
+R40
+R41
+R42
 R11
 R12
-!s100 C24C??0cW2oIa=70aKP8A1
-!i10b 1
 Ewin_tb
-Z31 w1443571886
+Z46 w1443571886
 R1
 R2
 R3
