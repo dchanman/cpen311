@@ -30,4 +30,31 @@ END new_balance;
 ARCHITECTURE behavioural OF new_balance IS
 BEGIN
   -- Your code goes here
+  process(all) 
+  variable interm_balance : unsigned(11 downto 0) := (others => '0');
+  begin
+    interm_balance := money;
+    
+    if(bet1_wins = '1') then
+      --interm_balance := interm_balance + to_unsigned((to_unsigned(35, 3) * value1), 12);
+      interm_balance := interm_balance + (to_unsigned(35, 9) * value1);
+    else
+      interm_balance := interm_balance - value1;
+    end if;
+    
+    if(bet2_wins = '1') then
+      interm_balance := interm_balance + value2;
+    else
+      interm_balance := interm_balance - value2;
+    end if;
+    
+    if(bet3_wins = '1') then
+      interm_balance := interm_balance + to_unsigned(2, 9) * value3;
+    else
+      interm_balance := interm_balance - value3;
+    end if;
+    
+    new_money <= interm_balance;
+  end process;
+      
 END;

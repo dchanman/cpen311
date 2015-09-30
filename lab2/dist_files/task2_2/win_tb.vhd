@@ -83,7 +83,7 @@ ARCHITECTURE behavioural OF win_tb IS
    SIGNAL bet1_wins : std_logic;
    SIGNAL bet2_wins : std_logic;
    SIGNAL bet3_wins : std_logic;
-
+    signal test_vector : std_logic_vector(7 downto 0) := "11110000";
 begin
 
    -- instantiate the design-under-test
@@ -159,6 +159,7 @@ begin
       end loop;
                                            
       report "================== ALL TESTS PASSED =============================";
+     -- report test_vector(0);
                                                                               
       wait; --- we are done.  Wait for ever
     end process;

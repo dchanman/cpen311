@@ -25,7 +25,42 @@ END;
 
 ARCHITECTURE behavioral OF digit7seg IS
 BEGIN
-
 -- Your code goes here
+  process(all) begin
+    case digit is
+    when "1111" => --"F"
+      seg7 <= "0001110";
+    when "1110" => --"E"
+      seg7 <= "0000110";
+    when "1101" => --"D"
+      seg7 <= "1000000";
+    when "1100" => -- "C"
+      seg7 <= "0111001";
+    when "1011" => --"B"
+      seg7 <= "1000110";
+    when "1010" => --"A"
+      seg7 <= "0001001";
+    when "1001" => --9
+      seg7 <= "0010000";
+    when "1000" => --8
+      seg7 <= "0000000";
+    when "0111" => --7
+      seg7 <= "1111000";
+    when "0110" => --6
+      seg7 <= "0000010";
+    when "0101" => --5
+      seg7 <= "0010010";
+    when "0100" => --4
+      seg7 <= "0011001";
+    when "0011" => --3
+      seg7 <= "0110000";
+    when "0010" => --2
+      seg7 <= "0100100";
+    when "0001" => --1
+      seg7 <= "1111001";
+    when others =>
+      seg7 <= "1111111";
+    end case;
+end process;
 
 END;
