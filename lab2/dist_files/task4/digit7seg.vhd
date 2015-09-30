@@ -26,6 +26,43 @@ END;
 ARCHITECTURE behavioral OF digit7seg IS
 BEGIN
 
--- Your code goes here
+digit_lookup : PROCESS(ALL)
+BEGIN
+  if digit = 0 then
+    seg7 <= "1000000";
+  elsif digit = 1 then
+    seg7 <= "1111001";
+  elsif digit = 2 then
+    seg7 <= "0100100";
+  elsif digit = 3 then
+    seg7 <= "0110000";
+  elsif digit = 4 then
+    seg7 <= "0011001";
+  elsif digit = 5 then
+    seg7 <= "0010010";
+  elsif digit = 6 then
+    seg7 <= "0000010";
+  elsif digit = 7 then
+    seg7 <= "1111000";
+  elsif digit = 8 then
+    seg7 <= "0000000";
+  elsif digit = 9 then
+    seg7 <= "0010000";
+  elsif digit = 10 then
+    seg7 <= "0001000";
+  elsif digit = 11 then
+    seg7 <= "0000011";
+  elsif digit = 12 then
+    seg7 <= "0100111";
+  elsif digit = 13 then
+    seg7 <= "0100001";
+  elsif digit = 14 then
+    seg7 <= "0000100";
+  elsif digit = 15 then
+    seg7 <= "0001110";
+  else
+    seg7 <= "0111111";
+  end if;
+END PROCESS;
 
 END;
