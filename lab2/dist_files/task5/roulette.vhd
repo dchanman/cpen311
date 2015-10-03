@@ -72,6 +72,14 @@ ARCHITECTURE structural OF roulette IS
 		bet3_wins : out std_logic); -- whether bet 3 is a winner
 	END COMPONENT;
 	
+	COMPONENT binary_to_decimal IS
+	PORT(binary : IN  UNSIGNED(11 downto 0);  -- number 0 to 4096
+		digit_1 : OUT UNSIGNED(3 downto 0);  -- one per segment
+		digit_10 : OUT UNSIGNED(3 downto 0);  -- one per segment
+		digit_100 : OUT UNSIGNED(3 downto 0);  -- one per segment
+		digit_1000 : OUT UNSIGNED(3 downto 0));  -- one per segment
+	END COMPONENT;
+	
 	-- Signal definitions
 	SIGNAL spin_result : UNSIGNED(5 downto 0);
 	SIGNAL spin_result_latched : UNSIGNED(5 downto 0);
@@ -89,7 +97,14 @@ ARCHITECTURE structural OF roulette IS
 	SIGNAL resetb : STD_LOGIC;
 	SIGNAL slow_clock : STD_LOGIC;
 	SIGNAL fast_clock : STD_LOGIC;
-	
+
+	SIGNAL hex0_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex1_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex2_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex3_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex5_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex6_signal : UNSIGNED(3 downto 0);
+	SIGNAL hex7_signal : UNSIGNED(3 downto 0);
 BEGIN
 	-- Hardware signal mappings
 	resetb <= KEY(1);
@@ -98,9 +113,7 @@ BEGIN
 	LEDG(0) <= bet1_wins;
 	LEDG(1) <= bet2_wins;
 	LEDG(2) <= bet3_wins;
-	HEX3 <= "1111111";
 	HEX4 <= "1111111";
-	HEX5 <= "1111111";
 
 	-- Instantiate components
 	spinwheel_1 : spinwheel port map(
@@ -130,18 +143,31 @@ BEGIN
 		new_money
 	);
 	
+	binary_to_decimal_12_13_14 : binary_to_decimal port map(
+		binary => new_money,
+		digit_1 => hex0_signal,
+		digit_10 => hex1_signal,
+		digit_100 => hex2_signal,
+		digit_1000 => hex3_signal
+	);
+	
+	digit7seg_x : digit7seg port map(
+		hex3_signal,
+		HEX3
+	);
+	
 	digit7seg_12 : digit7seg port map(
-		new_money(11 downto 8),
+		hex2_signal,
 		HEX2
 	);
 	
 	digit7seg_13 : digit7seg port map(
-		new_money(7 downto 4),
+		hex1_signal,
 		HEX1
 	);
 	
 	digit7seg_14 : digit7seg port map(
-		new_money(3 downto 0),
+		hex0_signal,
 		HEX0
 	);
 	
