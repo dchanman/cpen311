@@ -57,7 +57,7 @@ BEGIN
   elsif digit = 13 then
     seg7 <= "0100001";
   elsif digit = 14 then
-    seg7 <= "0000100";
+    seg7 <= "0000110";
   elsif digit = 15 then
     seg7 <= "0001110";
   else
