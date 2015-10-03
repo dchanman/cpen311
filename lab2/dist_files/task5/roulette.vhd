@@ -151,7 +151,7 @@ BEGIN
 		digit_1000 => hex3_signal
 	);
 	
-	digit7seg_x : digit7seg port map(
+	digit7seg_x1 : digit7seg port map(
 		hex3_signal,
 		HEX3
 	);
@@ -171,13 +171,26 @@ BEGIN
 		HEX0
 	);
 	
+	binary_to_decimal_15_16 : binary_to_decimal port map(
+		binary => "000000" & spin_result_latched,
+		digit_1 => hex5_signal,
+		digit_10 => hex6_signal,
+		digit_100 => hex7_signal,
+		digit_1000 => open
+	);
+	
+	digit7seg_x2 : digit7seg port map(
+		hex5_signal,
+		HEX5
+	);
+	
 	digit7seg_15 : digit7seg port map(
-		spin_result_latched(3 downto 0),
+		hex6_signal,
 		HEX6
 	);
 	
 	digit7seg_16 : digit7seg port map(
-		"00" & spin_result_latched(5 downto 4),
+		hex7_signal,
 		HEX7
 	);
 	
