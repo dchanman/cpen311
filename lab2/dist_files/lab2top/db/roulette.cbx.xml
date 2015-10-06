@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="roulette">
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_divide:Div1" CBX_FILE_NAME="lpm_divide_bso.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_5ch.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_mult:Mult0|multcore:mult_core|mpar_add:padder|mpar_add:sub_par_add|lpm_add_sub:adder[0]" CBX_FILE_NAME="add_sub_9ch.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_mult:Mult1" CBX_FILE_NAME="mult_l3t.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|new_balance:new_balance_11|lpm_add_sub:Add2" CBX_FILE_NAME="add_sub_5ri.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_divide:Div0" CBX_FILE_NAME="lpm_divide_pfm.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|decimalConverter:dconverter|lpm_divide:Div2" CBX_FILE_NAME="lpm_divide_7so.tdf"/>
+		<CBX_INST_ENTRY INSTANCE_NAME="|roulette|smallDecimalConverter:sdconverter|lpm_divide:Div0" CBX_FILE_NAME="lpm_divide_vcm.tdf"/>
+	</PROJECT>
+</LOG_ROOT>
