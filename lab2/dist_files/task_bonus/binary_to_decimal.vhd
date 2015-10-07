@@ -1,3 +1,9 @@
+-----------------------------------------------------
+--	CPEN 311 - Lab 2
+--	Graeme Rennie	23071137
+--	Derek Chan 		33184128
+-----------------------------------------------------
+
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
