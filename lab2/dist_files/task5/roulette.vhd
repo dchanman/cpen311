@@ -102,7 +102,6 @@ ARCHITECTURE structural OF roulette IS
 	SIGNAL hex1_signal : UNSIGNED(3 downto 0);
 	SIGNAL hex2_signal : UNSIGNED(3 downto 0);
 	SIGNAL hex3_signal : UNSIGNED(3 downto 0);
-	SIGNAL hex5_signal : UNSIGNED(3 downto 0);
 	SIGNAL hex6_signal : UNSIGNED(3 downto 0);
 	SIGNAL hex7_signal : UNSIGNED(3 downto 0);
 BEGIN
@@ -114,6 +113,7 @@ BEGIN
 	LEDG(1) <= bet2_wins;
 	LEDG(2) <= bet3_wins;
 	HEX4 <= "1111111";
+	HEX5 <= "1111111";
 
 	-- Instantiate components
 	spinwheel_1 : spinwheel port map(
@@ -173,15 +173,10 @@ BEGIN
 	
 	binary_to_decimal_15_16 : binary_to_decimal port map(
 		binary => "000000" & spin_result_latched,
-		digit_1 => hex5_signal,
-		digit_10 => hex6_signal,
-		digit_100 => hex7_signal,
+		digit_1 => hex6_signal,
+		digit_10 => hex7_signal,
+		digit_100 => open,
 		digit_1000 => open
-	);
-	
-	digit7seg_x2 : digit7seg port map(
-		hex5_signal,
-		HEX5
 	);
 	
 	digit7seg_15 : digit7seg port map(
