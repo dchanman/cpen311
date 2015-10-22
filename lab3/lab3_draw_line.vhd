@@ -29,9 +29,9 @@ architecture behavioural of lab3_draw_line is
   signal x_out : unsigned(7 downto 0);
   signal y_out : unsigned(7 downto 0);
   
-  signal dx : unsigned(7 downto 0);
-  signal dy : unsigned(7 downto 0);
-  signal err : integer;
+  signal dx : signed(7 downto 0);
+  signal dy : signed(7 downto 0);
+  signal err : signed(8 downto 0);
   signal sx : slope;
   signal sy : slope;
 begin
@@ -85,12 +85,12 @@ begin
   end process;
   
   x_y_looper : process(CLOCK, x_y_looper_reset)
-    variable e2 : integer;
+    variable e2 : signed(9 downto 0);
     variable x_inc : unsigned(7 downto 0);
     variable y_inc : unsigned(7 downto 0);
-    variable err_inc  : integer;
-    variable dx_inc : unsigned(7 downto 0);
-    variable dy_inc : unsigned(7 downto 0);
+    variable err_inc  : signed(8 downto 0);
+    variable dx_inc : signed(7 downto 0);
+    variable dy_inc : signed(7 downto 0);
   begin
     if x_y_looper_reset = '1' then
       -- asyncronous reset
@@ -100,31 +100,24 @@ begin
       
       -- calculate dx
       if (X0 > X1) then
-        dx_inc := X0 - X1;
+        dx_inc := to_signed(to_integer(X0 - X1),8);
         sx <= SLOPE_NEGATIVE;
       else
-        dx_inc := X1 - X0;
+        dx_inc := to_signed(to_integer(X1 - X0),8);
         sx <= SLOPE_POSITIVE;
       end if;
           
       -- calculate dy
       if (Y0 > Y1) then
-        dy_inc := Y0 - Y1;
+        dy_inc := to_signed(to_integer(Y0 - Y1),8);
         sy <= SLOPE_NEGATIVE;
       else
-        dy_inc := Y1 - Y0;
+        dy_inc := to_signed(to_integer(Y1 - Y0),8);
         sy <= SLOPE_POSITIVE;
       end if;
       
       -- calculate err
-      err_inc := to_integer(dx_inc) - to_integer(dy_inc);
-          report "CALCULATING | err_inc : " & integer'image(err_inc) &
-          " | dx_inc : " & integer'image(to_integer(dx_inc)) & 
-          " | dy_inc : " & integer'image(to_integer(dy_inc)) &
-          " | X0 : " & integer'image(to_integer(X0)) & 
-          " | X1 : " & integer'image(to_integer(X1)) & 
-          " | Y0 : " & integer'image(to_integer(Y0)) & 
-          " | Y1 : " & integer'image(to_integer(Y1)) ;
+      err_inc := "0" & (dx_inc - dy_inc);
       
     elsif rising_edge(CLOCK) then
       if (x_y_looper_done = '0') then
@@ -139,14 +132,10 @@ begin
           y_inc := y_out;
                 
           -- e2 := 2* err
-          e2 := 2*err_inc;
-          report "e2 : " & integer'image(e2) &
-          " | err : " & integer'image(err) &
-          " | dx : " & integer'image(to_integer(dx)) & 
-          " | dy : " & integer'image(to_integer(dy));
+          e2 := err_inc & "0";
           
           -- if e2 > -dy
-          if (e2 > (0 - to_integer(dy))) then
+          if (e2 > (to_signed(0,10) - "00" & dy)) then
             err_inc := err - to_integer(dy);
             case sx is
             when SLOPE_POSITIVE =>
@@ -158,7 +147,7 @@ begin
           
           -- if e2 < dx
           if (e2 < dx) then
-            err_inc := err + to_integer(dx);
+            err_inc := err + dx;
             case sy is
             when SLOPE_POSITIVE =>
               y_inc := y_out + 1;

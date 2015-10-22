@@ -323,8 +323,7 @@ begin
         severity failure;
                
 
-        
-      report "================== VALIDATING VERTICAL LINE 0 =============================";
+      report "================== VALIDATING DIAGONAL LINE 0 =============================";
       -- reset
       start <= '1';
       wait for 1 ns;
@@ -333,9 +332,9 @@ begin
       reset <= '1';
       start <= '0';
       X0 <= to_unsigned(0,8);
-      X1 <= to_unsigned(0,8);
+      X1 <= to_unsigned(5,8);
       Y0 <= to_unsigned(0,8);
-      Y1 <= to_unsigned(120,8);
+      Y1 <= to_unsigned(5,8);
       wait for 1 ns;
       
           -- Manually clock once
@@ -346,22 +345,43 @@ begin
       
       
       
-      for y_index in to_integer(Y0) to to_integer(Y1) loop
-        report "Validating straight line: (0," & integer'image(y_index) & ")";
+      for x_index in to_integer(X0) to to_integer(X1)-1 loop
+        report "Validating straight line: (0," & integer'image(x_index) & ")";
         
         -- validate reset
         assert(DONE = '0')
           report "FAILED LOOP, DONE WAS NOT '0'"
           severity failure;
         
-        assert(Y = to_unsigned(y_index,Y'length))
-          report "FAILED LOOP, Y expected: <" & integer'image(y_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
+        assert(Y = to_unsigned(x_index,Y'length)+1)
+          report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
+          severity warning;
+          
+        assert(X = to_unsigned(x_index,X'length))
+          report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
+          severity warning;
+        
+        assert(PLOT = '1')
+          report "FAILED LOOP - PLOT WAS NOT 1"
+          severity failure;        
+          
+        -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
+        
+        assert(DONE = '0')
+          report "FAILED LOOP, DONE WAS NOT '0'"
           severity failure;
         
-        assert(X = X0 and X = X1)
-          report "FAILED LOOP, X expected: <" & integer'image(to_integer(X0))  & "> instead of <" & integer'image(to_integer(X)) & ">"
-
-          severity failure;
+        assert(Y = to_unsigned(x_index,Y'length)+1)
+          report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
+          severity warning;
+          
+        assert(X = to_unsigned(x_index,X'length)+1)
+          report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
+          severity warning;
         
         assert(PLOT = '1')
           report "FAILED LOOP - PLOT WAS NOT 1"
@@ -394,7 +414,7 @@ begin
       assert(PLOT = '0')
         report "FAILED DONE - PLOT WAS NOT 0"
         severity failure;
-      
+
       report "================== ALL TESTS PASSED =============================";
                                                                               
       wait; --- we are done.  Wait for ever
