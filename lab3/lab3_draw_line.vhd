@@ -74,12 +74,12 @@ begin
         -- State Outputs
         DONE <= '1';
         PLOT <= '0';
+        x_y_looper_reset <= '0';
         
         -- State Transition
         if START = '1' then
           next_state <= STATE_READY;
         end if;
-        
       end case;
     end if;
   end process;
