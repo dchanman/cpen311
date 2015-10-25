@@ -42,11 +42,24 @@ architecture rtl of lab3 is
 		PLOT	: out std_logic;
 		DONE	: out std_logic);
 	end component;
+	
+	type STATES is (STATE_1_CLEAR_SCREEN, STATE_COMPLETE);
+	signal state : STATES := STATE_1_CLEAR_SCREEN;
+	signal next_state : STATES := STATE_1_CLEAR_SCREEN;
+	
+	type WAIT_1_SECOND_STATE is (WAIT_1_SECOND_STATE_READY, WAIT_1_SECOND_STATE_RUNNING, WAIT_1_SECOND_STATE_DONE);
+	signal wait_1_second_state : WAIT_1_SECOND_STATE := WAIT_1_SECOND_STATE_READY;
+	signal wait_1_second_next_state : WAIT_1_SECOND_STATE := WAIT_1_SECOND_STATE_READY;
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
-	signal colour : std_logic_vector(2 downto 0);
 	signal plot	 : std_logic;
+	
+	signal clear_x			: std_logic_vector(7 downto 0);
+	signal clear_y			: std_logic_vector(6 downto 0);
+	signal clear_plot	 : std_logic;
+	signal clear_start	 : std_logic;
+	signal clear_done	 : std_logic;
 
 begin
 
@@ -73,17 +86,49 @@ begin
 		port map(
 			CLOCK	=> CLOCK_50,
 			RESET => KEY(0),
-			START => KEY(1),
-			COLOUR => colour,
-			X => x,
-			Y => y,
-			PLOT => plot,
-			DONE => LEDG(2));
+			START => clear_start,
+			COLOUR => open,
+			X => clear_x,
+			Y => clear_y,
+			PLOT => clear_plot,
+			DONE => clear_done);
+			
+	wait_1_second : process(ALL)
+	BEGIN
+	END PROCESS;
+	
 
-
-	-- rest of your code goes here, as well as possibly additional files
-
-
+	state_machine : process(ALL)
+	BEGIN
+		-- default values
+		next_state <= state;
+		LEDG <= "0000";
+		
+		if (KEY(0) = '0') then
+			next_state <= STATE_1_CLEAR_SCREEN;
+		else
+			case next_state is
+			when STATE_1_CLEAR_SCREEN =>
+				LEDG <= "0001";
+				x <= clear_x;
+				y <= clear_y;
+				plot <= clear_plot;
+				clear_start <= '0';
+				
+				if (clear_done = '1') then
+					next_state <= STATE_COMPLETE;
+				end if;
+			when others =>
+				LEDG <= "1111";
+				x <= "00000000";
+				y <= "0000000";
+				plot <= '0';
+				clear_start <= '1';
+			end case;
+		end if;
+	END PROCESS;
+	
+	state <= next_state;
 end RTL;
 
 
