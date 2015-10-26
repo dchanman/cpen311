@@ -7,7 +7,6 @@ entity lab3_clear_screen is
     CLOCK  : in  std_logic;
     RESET : in  std_logic;
     START : in  std_logic;
-    COLOUR : out std_logic_vector(2 downto 0);
     X : out std_logic_vector(7 downto 0);
     Y : out std_logic_vector(6 downto 0);
     PLOT  : out std_logic;
@@ -105,7 +104,6 @@ begin
   end process;
   
   state <= next_state;
-  COLOUR <= "111";
   X <= std_logic_vector(x_out);
   Y <= std_logic_vector(y_out);
     

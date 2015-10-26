@@ -20,7 +20,6 @@ ARCHITECTURE behavioural OF lab3_clear_screen_tb IS
      CLOCK  : in  std_logic;
      RESET  : in  std_logic;
      START : in  std_logic;
-     COLOUR : out std_logic_vector(2 downto 0);
      X : out std_logic_vector(7 downto 0);
      Y : out std_logic_vector(6 downto 0);
      PLOT  : out std_logic;
@@ -31,7 +30,6 @@ ARCHITECTURE behavioural OF lab3_clear_screen_tb IS
   SIGNAL CLOCK  : std_logic;
   SIGNAL RESET  : std_logic;
   SIGNAL START : std_logic;
-  SIGNAL COLOUR : std_logic_vector(2 downto 0);
   SIGNAL X : std_logic_vector(7 downto 0);
   SIGNAL Y : std_logic_vector(6 downto 0);
   SIGNAL PLOT  : std_logic;
@@ -43,8 +41,7 @@ begin
    dut : lab3_clear_screen PORT MAP(
     CLOCK => CLOCK,
     RESET => RESET,
-	  START => START,   
-	  COLOUR => COLOUR,
+	  START => START,
 	  X => X,
 	  Y => Y,
 	  PLOT => PLOT,
