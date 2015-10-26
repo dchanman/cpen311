@@ -43,13 +43,7 @@ architecture rtl of lab3 is
 		DONE	: out std_logic);
 	end component;
 	
-	type STATES is (STATE_1_CLEAR_SCREEN, STATE_COMPLETE);
-	signal state : STATES := STATE_1_CLEAR_SCREEN;
-	signal next_state : STATES := STATE_1_CLEAR_SCREEN;
-	
-	type WAIT_1_SECOND_STATE is (WAIT_1_SECOND_STATE_READY, WAIT_1_SECOND_STATE_RUNNING, WAIT_1_SECOND_STATE_DONE);
-	signal wait_1_second_state : WAIT_1_SECOND_STATE := WAIT_1_SECOND_STATE_READY;
-	signal wait_1_second_next_state : WAIT_1_SECOND_STATE := WAIT_1_SECOND_STATE_READY;
+	type STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
@@ -92,43 +86,57 @@ begin
 			Y => clear_y,
 			PLOT => clear_plot,
 			DONE => clear_done);
-			
-	wait_1_second : process(ALL)
-	BEGIN
-	END PROCESS;
-	
 
-	state_machine : process(ALL)
+	state_machine : process(KEY(0), CLOCK_50)
+	variable current_state : STATES := STATE_0_INITIALIZE;
 	BEGIN
-		-- default values
-		next_state <= state;
-		LEDG <= "0000";
-		
 		if (KEY(0) = '0') then
-			next_state <= STATE_1_CLEAR_SCREEN;
+			LEDG <= "0000";
+			x <= "00000000";
+			y <= "0000000";
+			plot <= '0';
+			clear_start <= '0';
+			
+			current_state := STATE_0_INITIALIZE;
 		else
-			case next_state is
+			if rising_edge(CLOCK_50) then
+			case current_state is
+			when STATE_0_INITIALIZE =>
+				LEDG <= "0000";
+				x <= "00000000";
+				y <= "0000000";
+				plot <= '0';
+				clear_start <= '0';
+				
+				current_state := STATE_1_CLEAR_SCREEN;
+			
 			when STATE_1_CLEAR_SCREEN =>
+				-- State Outputs
 				LEDG <= "0001";
 				x <= clear_x;
 				y <= clear_y;
 				plot <= clear_plot;
 				clear_start <= '0';
 				
+				-- Next State
 				if (clear_done = '1') then
-					next_state <= STATE_COMPLETE;
+					current_state := STATE_COMPLETE;
+				else
+					current_state := STATE_1_CLEAR_SCREEN;
 				end if;
-			when others =>
+				
+			when STATE_COMPLETE =>
 				LEDG <= "1111";
 				x <= "00000000";
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '1';
+				
+				current_state := STATE_COMPLETE;
 			end case;
 		end if;
+		end if;
 	END PROCESS;
-	
-	state <= next_state;
 end RTL;
 
 
