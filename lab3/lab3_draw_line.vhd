@@ -84,7 +84,7 @@ begin
     end if;
   end process;
   
-  x_y_looper : process(CLOCK, x_y_looper_reset)
+  x_y_looper : process(ALL)
     variable e2 : signed(9 downto 0);
     variable x_inc : unsigned(7 downto 0);
     variable y_inc : unsigned(7 downto 0);
