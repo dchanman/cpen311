@@ -58,8 +58,8 @@ architecture rtl of lab3 is
     DONE  : out std_logic);
 	end component;
 	
-	--type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_0, STATE_COMPLETE);
-	type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_0, STATE_2_WAIT_1, STATE_3_DRAW_LINE, STATE_COMPLETE);
+	--type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_1, STATE_COMPLETE);
+	type MY_STATES is (STATE_0_INITIALIZE, STATE_0_WAIT_1, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_1, STATE_3_DRAW_LINE, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
@@ -137,7 +137,7 @@ begin
 	LEDR(17 downto 10) <= x;
 	LEDR(9 downto 3) <= y;
 
-	state_machine : process(ALL)
+	state_machine : process(KEY(0), CLOCK_50)
 	variable current_state : MY_STATES := STATE_0_INITIALIZE;
 	variable current_x0 : unsigned(7 downto 0);
 	variable current_y0 : unsigned(7 downto 0);
@@ -179,7 +179,30 @@ begin
 				line_reset <= '1';			
 				colour <= SW(17 downto 15);
 				
-				current_state := STATE_1_CLEAR_SCREEN;
+				current_state := STATE_0_WAIT_1;
+				
+			when STATE_0_WAIT_1 =>
+				-- State Outputs
+				LEDG <= "00000010";
+				x <= "00000000";
+				y <= "0000000";
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(100,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(100,current_y1'length);
+				plot <= '0';
+				clear_start <= '1';
+				line_start <= '1';
+				clear_reset <= '1';
+				line_reset <= '1';	
+				colour <= not SW(17 downto 15);
+
+				-- Next State
+				if (SW(0) = '0') then
+					current_state := STATE_1_CLEAR_SCREEN;
+				else
+					current_state := STATE_0_WAIT_1;
+				end if;
 			
 			when STATE_1_CLEAR_SCREEN =>
 				-- State Outputs
@@ -199,12 +222,12 @@ begin
 				
 				-- Next State
 				if (clear_done = '1') then
-					current_state := STATE_2_WAIT_0;
+					current_state := STATE_2_WAIT_1;
 				else
 					current_state := STATE_1_CLEAR_SCREEN;
 				end if;
 				
-			when STATE_2_WAIT_0 =>
+			when STATE_2_WAIT_1 =>
 				-- State Outputs
 				LEDG <= "00000011";
 				x <= "00000000";
@@ -223,32 +246,6 @@ begin
 				-- Next State
 				if (SW(0) = '1') then
 					current_state := STATE_3_DRAW_LINE;
-					current_state := STATE_2_WAIT_1;
-					current_state := STATE_COMPLETE;
-				else
-					current_state := STATE_2_WAIT_0;
-				end if;
-				
-			when STATE_2_WAIT_1 =>
-				-- State Outputs
-				LEDG <= "00000010";
-				x <= "00000000";
-				y <= "0000000";
-				current_x0 := to_unsigned(0,current_x0'length);
-				current_x1 := to_unsigned(100,current_x1'length);
-				current_y0 := to_unsigned(0,current_y0'length);
-				current_y1 := to_unsigned(100,current_y1'length);
-				plot <= '0';
-				clear_start <= '1';
-				line_start <= '1';
-				clear_reset <= '1';
-				line_reset <= '1';	
-				colour <= not SW(17 downto 15);
-
-				-- Next State
-				if (SW(0) = '0') then
-					current_state := STATE_3_DRAW_LINE;
-					current_state := STATE_COMPLETE;
 				else
 					current_state := STATE_2_WAIT_1;
 				end if;
@@ -256,48 +253,25 @@ begin
 			when STATE_3_DRAW_LINE =>
 				-- State Outputs
 				LEDG <= "00000111";
-				x <= clear_x;
-				y <= clear_y;
+				x <= std_logic_vector(line_x);
+				y <= std_logic_vector(line_y(6 downto 0));
 				current_x0 := to_unsigned(0,current_x0'length);
-				current_x1 := to_unsigned(0,current_x1'length);
+				current_x1 := to_unsigned(100,current_x1'length);
 				current_y0 := to_unsigned(0,current_y0'length);
-				current_y1 := to_unsigned(0,current_y1'length);
-				plot <= clear_plot;
-				clear_start <= '0';
-				line_start <= '1';
+				current_y1 := to_unsigned(100,current_y1'length);
+				plot <= line_plot;
+				clear_start <= '1';
+				line_start <= '0';
 				clear_reset <= '1';
 				line_reset <= '1';	
 				colour <= not SW(17 downto 15);
 				
 				-- Next State
-				if (clear_done = '1') then
+				if (line_done = '1') then
 					current_state := STATE_COMPLETE;
 				else
 					current_state := STATE_3_DRAW_LINE;
 				end if;
-
---				-- State Outputs
---				LEDG <= "00000111";
---				x <= "00000000";
---				y <= "0000000";
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(100,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(100,current_y1'length);
---				plot <= '0';
---				clear_start <= '1';
---				line_start <= '1';
---				clear_reset <= '1';
---				line_reset <= '1';	
---				colour <= not SW(17 downto 15);
---
---				-- Next State
---				if (SW(0) = '0') then
---					current_state := STATE_3_DRAW_LINE;
---					current_state := STATE_COMPLETE;
---				else
---					current_state := STATE_2_WAIT_0;
---				end if;
 				
 			when others =>
 				LEDG <= "11111111";
@@ -323,144 +297,6 @@ begin
 		y0 <= current_y0;
 		y1 <= current_y1;
 	END PROCESS;
-	
---	state_machine : process(KEY(0), CLOCK_50)
---	variable current_state : STATES := STATE_0_INITIALIZE;
---	variable current_x0 : unsigned(7 downto 0);
---	variable current_y0 : unsigned(7 downto 0);
---	variable current_x1 : unsigned(7 downto 0);
---	variable current_y1 : unsigned(7 downto 0);
---	BEGIN
---		if (KEY(0) = '0') then
---			LEDG <= "00000000";
---			x <= "00000000";
---			y <= "0000000";
---			current_x0 := to_unsigned(0,current_x0'length);
---			current_x1 := to_unsigned(0,current_x1'length);
---			current_y0 := to_unsigned(0,current_y0'length);
---			current_y1 := to_unsigned(0,current_y1'length);
---			plot <= '0';
---			clear_start <= '1';
---			line_start <= '1';
---			clear_reset <= '0';
---			line_reset <= '0';
---			
---			colour <= "000";
---			
---			current_state := STATE_0_INITIALIZE;
---		else
---			if rising_edge(CLOCK_50) then
---			case current_state is
---			when STATE_0_INITIALIZE =>
---				LEDG <= "00000000";
---				x <= "00000000";
---				y <= "0000000";
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(0,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(0,current_y1'length);
---				plot <= '0';
---				clear_start <= '1';
---				line_start <= '1';
---				clear_reset <= '1';
---				line_reset <= '1';			
---				colour <= SW(17 downto 15);
---				
---				current_state := STATE_1_CLEAR_SCREEN;
---			
---			when STATE_1_CLEAR_SCREEN =>
---				-- State Outputs
---				LEDG <= "00000001";
---				x <= clear_x;
---				y <= clear_y;
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(0,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(0,current_y1'length);
---				plot <= clear_plot;
---				clear_start <= '0';
---				line_start <= '1';
---				clear_reset <= '1';
---				line_reset <= '1';	
---				colour <= SW(17 downto 15);
---				
---				-- Next State
---				if (clear_done = '1') then
---					current_state := STATE_2_WAIT_0;
---				else
---					current_state := STATE_1_CLEAR_SCREEN;
---				end if;
---				
---			when STATE_2_WAIT_0 =>
---				-- State Outputs
---				LEDG <= "00000011";
---				x <= "00000000";
---				y <= "0000000";
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(100,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(100,current_y1'length);
---				plot <= '0';
---				clear_start <= '1';
---				line_start <= '1';
---				clear_reset <= '1';
---				line_reset <= '1';	
---				colour <= not SW(17 downto 15);
---
---				-- Next State
---				if (SW(0) = '1') then
---					current_state := STATE_3_DRAW_LINE;
---				else
---					current_state := STATE_2_WAIT_0;
---				end if;
---				
---			when STATE_3_DRAW_LINE =>
---				-- State Outputs
---				LEDG <= "00000111";
---				x <= std_logic_vector(line_x);
---				y <= std_logic_vector(line_y(6 downto 0));
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(100,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(100,current_y1'length);
---				plot <= line_plot;
---				clear_start <= '1';
---				line_start <= '0';
---				clear_reset <= '1';
---				line_reset <= '1';	
---				colour <= not SW(17 downto 15);
---				
---				-- Next State
---				if (line_done = '1') then
---					current_state := STATE_COMPLETE;
---				else
---					current_state := STATE_3_DRAW_LINE;
---				end if;
---				
---			when STATE_COMPLETE =>
---				LEDG <= "11111111";
---				x <= "00000000";
---				y <= "0000000";
---				current_x0 := to_unsigned(0,current_x0'length);
---				current_x1 := to_unsigned(0,current_x1'length);
---				current_y0 := to_unsigned(0,current_y0'length);
---				current_y1 := to_unsigned(0,current_y1'length);
---				plot <= '0';
---				clear_start <= '1';
---				line_start <= '1';
---				clear_reset <= '1';
---				line_reset <= '1';	
---				colour <= "000";
---				
---				current_state := STATE_COMPLETE;
---			end case;
---		end if;
---		end if;
---		x0 <= current_x0;
---		x1 <= current_x1;
---		y0 <= current_y0;
---		y1 <= current_y1;
---	END PROCESS;
 end RTL;
 
 
