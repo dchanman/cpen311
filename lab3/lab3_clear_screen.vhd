@@ -20,8 +20,8 @@ architecture behavioural of lab3_clear_screen is
   signal state : STATES := STATE_READY;
   signal next_state : STATES := STATE_READY;
   
-  signal x_y_looper_reset : std_logic;
-  signal x_y_looper_done : std_logic;
+  signal x_y_looper_reset : std_logic := '1';
+  signal x_y_looper_done : std_logic := '0';
   signal x_out : unsigned(7 downto 0) := "00000000";
   signal y_out : unsigned(6 downto 0) := "0000000";
 begin
@@ -76,8 +76,6 @@ begin
   end process;
   
   x_y_looper : process(CLOCK, x_y_looper_reset)
-    variable x_inc : unsigned(7 downto 0);
-    variable y_inc : unsigned(6 downto 0);
   begin
     if x_y_looper_reset = '1' then
       -- asyncronous reset
@@ -88,23 +86,20 @@ begin
     elsif rising_edge(CLOCK) then
       if (x_y_looper_done = '0') then
         -- on clock, increment x
-        y_inc := y_out;
-        x_inc := x_out + 1;
+        y_out <= y_out;
+        x_out <= x_out + 1;
         
         -- if X overflows the VGA, increment Y
-        if (x_inc > 160) then
-          x_inc := "00000000";
-          y_inc := y_out + 1;
+        if (x_out + 1 > 160) then
+          x_out <= "00000000";
+          y_out <= y_out + 1;
           
           -- if Y overflows the VGA, we are done
-          if (y_inc > 120) then
-              y_inc := "0000000";
+          if (y_out + 1 > 120) then
+              y_out <= "0000000";
               x_y_looper_done <= '1';
           end if;
         end if;
-        
-        x_out <= x_inc;
-        y_out <= y_inc;
       end if;      
     end if;  
   end process;
