@@ -43,7 +43,7 @@ architecture rtl of lab3 is
 		DONE	: out std_logic);
 	end component;
 	
-	type STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT, STATE_COMPLETE);
+	type STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT, STATE_3_CLEAR_SCREEN, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
@@ -135,9 +135,24 @@ begin
 
 				-- Next State
 				if (SW(0) = '1') then
-					current_state := STATE_COMPLETE;
+					current_state := STATE_3_CLEAR_SCREEN;
 				else
 					current_state := STATE_2_WAIT;
+				end if;
+				
+			when STATE_3_CLEAR_SCREEN =>
+				-- State Outputs
+				LEDG <= "0111";
+				x <= clear_x;
+				y <= clear_y;
+				plot <= clear_plot;
+				clear_start <= '0';
+				
+				-- Next State
+				if (clear_done = '1') then
+					current_state := STATE_COMPLETE;
+				else
+					current_state := STATE_3_CLEAR_SCREEN;
 				end if;
 				
 			when STATE_COMPLETE =>
