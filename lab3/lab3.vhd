@@ -37,7 +37,6 @@ architecture rtl of lab3 is
 		CLOCK	: in	std_logic;
 		RESET : in	std_logic;
 		START : in	std_logic;
-		COLOUR : out std_logic_vector(2 downto 0);
 		X : out std_logic_vector(7 downto 0);
 		Y : out std_logic_vector(6 downto 0);
 		PLOT	: out std_logic;
@@ -59,8 +58,8 @@ architecture rtl of lab3 is
     DONE  : out std_logic);
 	end component;
 	
-	--type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT, STATE_COMPLETE);
-	type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT, STATE_3_DRAW_LINE, STATE_COMPLETE);
+	--type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_0, STATE_COMPLETE);
+	type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT_0, STATE_2_WAIT_1, STATE_3_DRAW_LINE, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
@@ -112,7 +111,6 @@ begin
 			CLOCK	=> CLOCK_50,
 			RESET => clear_reset,
 			START => clear_start,
-			COLOUR => open,
 			X => clear_x,
 			Y => clear_y,
 			PLOT => clear_plot,
@@ -201,12 +199,12 @@ begin
 				
 				-- Next State
 				if (clear_done = '1') then
-					current_state := STATE_2_WAIT;
+					current_state := STATE_2_WAIT_0;
 				else
 					current_state := STATE_1_CLEAR_SCREEN;
 				end if;
 				
-				when STATE_2_WAIT =>
+			when STATE_2_WAIT_0 =>
 				-- State Outputs
 				LEDG <= "00000011";
 				x <= "00000000";
@@ -225,9 +223,34 @@ begin
 				-- Next State
 				if (SW(0) = '1') then
 					current_state := STATE_3_DRAW_LINE;
+					current_state := STATE_2_WAIT_1;
 					current_state := STATE_COMPLETE;
 				else
-					current_state := STATE_2_WAIT;
+					current_state := STATE_2_WAIT_0;
+				end if;
+				
+			when STATE_2_WAIT_1 =>
+				-- State Outputs
+				LEDG <= "00000010";
+				x <= "00000000";
+				y <= "0000000";
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(100,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(100,current_y1'length);
+				plot <= '0';
+				clear_start <= '1';
+				line_start <= '1';
+				clear_reset <= '1';
+				line_reset <= '1';	
+				colour <= not SW(17 downto 15);
+
+				-- Next State
+				if (SW(0) = '0') then
+					current_state := STATE_3_DRAW_LINE;
+					current_state := STATE_COMPLETE;
+				else
+					current_state := STATE_2_WAIT_1;
 				end if;
 				
 			when STATE_3_DRAW_LINE =>
@@ -273,7 +296,7 @@ begin
 --					current_state := STATE_3_DRAW_LINE;
 --					current_state := STATE_COMPLETE;
 --				else
---					current_state := STATE_2_WAIT;
+--					current_state := STATE_2_WAIT_0;
 --				end if;
 				
 			when others =>
@@ -363,12 +386,12 @@ begin
 --				
 --				-- Next State
 --				if (clear_done = '1') then
---					current_state := STATE_2_WAIT;
+--					current_state := STATE_2_WAIT_0;
 --				else
 --					current_state := STATE_1_CLEAR_SCREEN;
 --				end if;
 --				
---			when STATE_2_WAIT =>
+--			when STATE_2_WAIT_0 =>
 --				-- State Outputs
 --				LEDG <= "00000011";
 --				x <= "00000000";
@@ -388,7 +411,7 @@ begin
 --				if (SW(0) = '1') then
 --					current_state := STATE_3_DRAW_LINE;
 --				else
---					current_state := STATE_2_WAIT;
+--					current_state := STATE_2_WAIT_0;
 --				end if;
 --				
 --			when STATE_3_DRAW_LINE =>
