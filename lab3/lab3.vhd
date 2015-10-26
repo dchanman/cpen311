@@ -6,7 +6,7 @@ entity lab3 is
 	port(CLOCK_50						: in	std_logic;
 			 KEY								 : in	std_logic_vector(3 downto 0);
 			 SW									: in	std_logic_vector(17 downto 0);
-			 LEDG : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);  -- ledg
+			 LEDG : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);  -- ledg
 			 VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);	-- The outs go to VGA controller
 			 VGA_HS							: out std_logic;
 			 VGA_VS							: out std_logic;
@@ -137,7 +137,7 @@ begin
 	variable current_y1 : unsigned(7 downto 0);
 	BEGIN
 		if (KEY(0) = '0') then
-			LEDG <= "0000";
+			LEDG <= "00000000";
 			x <= "00000000";
 			y <= "0000000";
 			current_x0 := to_unsigned(0,current_x0'length);
@@ -154,7 +154,7 @@ begin
 			if rising_edge(CLOCK_50) then
 			case current_state is
 			when STATE_0_INITIALIZE =>
-				LEDG <= "0000";
+				LEDG <= "00000000";
 				x <= "00000000";
 				y <= "0000000";
 				current_x0 := to_unsigned(0,current_x0'length);
@@ -170,7 +170,7 @@ begin
 			
 			when STATE_1_CLEAR_SCREEN =>
 				-- State Outputs
-				LEDG <= "0001";
+				LEDG <= "00000001";
 				x <= clear_x;
 				y <= clear_y;
 				current_x0 := to_unsigned(0,current_x0'length);
@@ -191,7 +191,7 @@ begin
 				
 			when STATE_2_WAIT =>
 				-- State Outputs
-				LEDG <= "0011";
+				LEDG <= "00000011";
 				x <= "00000000";
 				y <= "0000000";
 				current_x0 := to_unsigned(0,current_x0'length);
@@ -212,7 +212,7 @@ begin
 				
 			when STATE_3_DRAW_LINE =>
 				-- State Outputs
-				LEDG <= "0111";
+				LEDG <= "00000111";
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
 				current_x0 := to_unsigned(0,current_x0'length);
@@ -232,7 +232,7 @@ begin
 				end if;
 				
 			when STATE_COMPLETE =>
-				LEDG <= "1111";
+				LEDG <= "11111111";
 				x <= "00000000";
 				y <= "0000000";
 				current_x0 := to_unsigned(0,current_x0'length);
