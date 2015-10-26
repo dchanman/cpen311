@@ -65,6 +65,11 @@ architecture rtl of lab3 is
 	signal plot	 : std_logic;
 	signal colour	:	std_logic_vector(2 downto 0);
 	
+	signal x0	:	unsigned(7 downto 0);
+	signal x1	:	unsigned(7 downto 0);
+	signal y0	:	unsigned(7 downto 0);
+	signal y1	:	unsigned(7 downto 0);
+	
 	signal clear_x			: std_logic_vector(7 downto 0);
 	signal clear_y			: std_logic_vector(6 downto 0);
 	signal clear_plot	 : std_logic;
@@ -114,10 +119,10 @@ begin
 			CLOCK => CLOCK_50,
 			RESET => KEY(0),
 			START => line_start,
-			X0 => to_unsigned(0,8),
-			Y0 => to_unsigned(0,8),
-			X1 => to_unsigned(50,8),
-			Y1 => to_unsigned(50,8),
+			X0 => x0,
+			Y0 => y0,
+			X1 => x1,
+			Y1 => y1,
 			X => line_x,
 			Y => line_y,
 			PLOT => line_plot,
@@ -126,11 +131,19 @@ begin
 
 	state_machine : process(KEY(0), CLOCK_50)
 	variable current_state : STATES := STATE_0_INITIALIZE;
+	variable current_x0 : unsigned(7 downto 0);
+	variable current_y0 : unsigned(7 downto 0);
+	variable current_x1 : unsigned(7 downto 0);
+	variable current_y1 : unsigned(7 downto 0);
 	BEGIN
 		if (KEY(0) = '0') then
 			LEDG <= "0000";
 			x <= "00000000";
 			y <= "0000000";
+			current_x0 := to_unsigned(0,current_x0'length);
+			current_x1 := to_unsigned(0,current_x1'length);
+			current_y0 := to_unsigned(0,current_y0'length);
+			current_y1 := to_unsigned(0,current_y1'length);
 			plot <= '0';
 			clear_start <= '1';
 			line_start <= '1';
@@ -144,6 +157,10 @@ begin
 				LEDG <= "0000";
 				x <= "00000000";
 				y <= "0000000";
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(0,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(0,current_y1'length);
 				plot <= '0';
 				clear_start <= '1';
 				line_start <= '1';
@@ -156,6 +173,10 @@ begin
 				LEDG <= "0001";
 				x <= clear_x;
 				y <= clear_y;
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(0,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(0,current_y1'length);
 				plot <= clear_plot;
 				clear_start <= '0';
 				line_start <= '1';
@@ -173,6 +194,10 @@ begin
 				LEDG <= "0011";
 				x <= "00000000";
 				y <= "0000000";
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(100,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(100,current_y1'length);
 				plot <= '0';
 				clear_start <= '1';
 				line_start <= '1';
@@ -190,6 +215,10 @@ begin
 				LEDG <= "0111";
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(100,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(100,current_y1'length);
 				plot <= line_plot;
 				clear_start <= '1';
 				line_start <= '0';
@@ -206,6 +235,10 @@ begin
 				LEDG <= "1111";
 				x <= "00000000";
 				y <= "0000000";
+				current_x0 := to_unsigned(0,current_x0'length);
+				current_x1 := to_unsigned(0,current_x1'length);
+				current_y0 := to_unsigned(0,current_y0'length);
+				current_y1 := to_unsigned(0,current_y1'length);
 				plot <= '0';
 				clear_start <= '1';
 				line_start <= '1';
@@ -215,6 +248,10 @@ begin
 			end case;
 		end if;
 		end if;
+		x0 <= current_x0;
+		x1 <= current_x1;
+		y0 <= current_y0;
+		y1 <= current_y1;
 	END PROCESS;
 end RTL;
 
