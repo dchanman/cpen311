@@ -8,8 +8,8 @@ entity lab3_draw_line is
     RESET : in  std_logic;
     START : in  std_logic;
     X0  : in  unsigned(7 downto 0);
-    X1  : in  unsigned(7 downto 0);
     Y0  : in  unsigned(7 downto 0);
+	 X1  : in  unsigned(7 downto 0);
     Y1  : in  unsigned(7 downto 0);
     X : out unsigned(7 downto 0);
     Y : out unsigned(7 downto 0);
@@ -83,89 +83,75 @@ begin
       end case;
     end if;
   end process;
+ 
+ x_y_param_calculator : process(ALL)
+ BEGIN
+	  -- calculate dx
+	if (X0 > X1) then
+	  dx <= to_signed(to_integer(X0 - X1),8);
+	  sx <= SLOPE_NEGATIVE;
+	else
+	  dx <= to_signed(to_integer(X1 - X0),8);
+	  sx <= SLOPE_POSITIVE;
+	end if;
+		 
+	-- calculate dy
+	if (Y0 > Y1) then
+	  dy <= to_signed(to_integer(Y0 - Y1),8);
+	  sy <= SLOPE_NEGATIVE;
+	else
+	  dy <= to_signed(to_integer(Y1 - Y0),8);
+	  sy <= SLOPE_POSITIVE;
+	end if;
+END PROCESS;
   
-  x_y_looper : process(ALL)
-    variable e2 : signed(9 downto 0);
-    variable x_inc : unsigned(7 downto 0);
-    variable y_inc : unsigned(7 downto 0);
-    variable err_inc  : signed(8 downto 0);
-    variable dx_inc : signed(7 downto 0);
-    variable dy_inc : signed(7 downto 0);
+x_y_looper : process(ALL)
+	variable err : signed(8 downto 0);
+	variable x_inc : unsigned(7 downto 0);
+	variable y_inc : unsigned(7 downto 0);  
+   variable e2 : signed(9 downto 0);
   begin
+	 e2 := err & "0";
+	 
     if x_y_looper_reset = '1' then
       -- asyncronous reset
       x_out <= X0;
       y_out <= Y0;
       x_y_looper_done <= '0';
       
-      -- calculate dx
-      if (X0 > X1) then
-        dx_inc := to_signed(to_integer(X0 - X1),8);
-        sx <= SLOPE_NEGATIVE;
-      else
-        dx_inc := to_signed(to_integer(X1 - X0),8);
-        sx <= SLOPE_POSITIVE;
-      end if;
-          
-      -- calculate dy
-      if (Y0 > Y1) then
-        dy_inc := to_signed(to_integer(Y0 - Y1),8);
-        sy <= SLOPE_NEGATIVE;
-      else
-        dy_inc := to_signed(to_integer(Y1 - Y0),8);
-        sy <= SLOPE_POSITIVE;
-      end if;
-      
       -- calculate err
-      err_inc := "0" & (dx_inc - dy_inc);
-      
+      err := "0" & (dx - dy);
     elsif rising_edge(CLOCK) then
       if (x_y_looper_done = '0') then
         
         -- check if we are finished
         if (x_out = X1) and (y_out = Y1) then
           x_y_looper_done <= '1';
-        else
-          
-          err_inc := err;
-          x_inc := x_out;
-          y_inc := y_out;
-                
-          -- e2 := 2* err
-          e2 := err_inc & "0";
-          
+        else    
           -- if e2 > -dy
           if (e2 > (to_signed(0,10) - "00" & dy)) then
-            err_inc := err - to_integer(dy);
+            err := err - to_integer(dy);
             case sx is
             when SLOPE_POSITIVE =>
-              x_inc := x_out + 1;
+              x_out <= x_out + 1;
             when SLOPE_NEGATIVE =>
-              x_inc := x_out - 1;
+              x_out <= x_out - 1;
             end case;
           end if;
           
           -- if e2 < dx
           if (e2 < dx) then
-            err_inc := err + dx;
+            err := err + dx;
             case sy is
             when SLOPE_POSITIVE =>
-              y_inc := y_out + 1;
+              y_out <= y_out + 1;
             when SLOPE_NEGATIVE =>
-              y_inc := y_out - 1;
+              y_out <= y_out - 1;
             end case;
-          end if;
-                    
-          x_out <= x_inc;
-          y_out <= y_inc;
-          err <= err_inc;
-          
+          end if;     
         end if;      
       end if;
     end if;
-    err <= err_inc; 
-    dx <= dx_inc; 
-    dy <= dy_inc; 
   end process;
   
   state <= next_state;
