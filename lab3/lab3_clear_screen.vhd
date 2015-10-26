@@ -15,97 +15,80 @@ end lab3_clear_screen;
 
 architecture behavioural of lab3_clear_screen is
   type STATES is (STATE_READY,STATE_CLEARING,STATE_DONE);
-    
-  signal state : STATES := STATE_READY;
-  signal next_state : STATES := STATE_READY;
-  
-  signal x_y_looper_reset : std_logic := '1';
-  signal x_y_looper_done : std_logic := '0';
-  signal x_out : unsigned(7 downto 0) := "00000000";
-  signal y_out : unsigned(6 downto 0) := "0000000";
-begin
+  begin
 
   state_machine : process(ALL)
+  variable state : STATES := STATE_READY;
+  variable x_out : unsigned(7 downto 0) := "00000000";
+  variable y_out : unsigned(7 downto 0) := "00000000";
   begin
     if RESET = '0' then
       -- asyncronous reset
-      next_state <= STATE_READY;
+      state := STATE_READY;
       DONE <= '0';
       PLOT <= '0';
-      x_y_looper_reset <= '1';
-    else
-      next_state <= state;
-      
+    else      
       case state is
       when STATE_READY =>
         -- State Outputs
         DONE <= '0';
         PLOT <= '0';
-        x_y_looper_reset <= '1';
+		  
+		  -- State Action
+		  -- Nothing. Wait for Start
         
         -- State Transition
         if START = '0' then
-          next_state <= STATE_CLEARING;
+          state := STATE_CLEARING;
+          PLOT <= '1';
+        else
+          state := STATE_READY;
         end if;
         
       when STATE_CLEARING =>
         -- State Outputs
         DONE <= '0';
         PLOT <= '1';
-        x_y_looper_reset <= '0';
-        
-        -- State Transition
-        if (x_y_looper_done = '1') then 
-          next_state <= STATE_DONE;
-        end if;
+		  
+		  -- State Action
+		  if (rising_edge(CLOCK)) then
+			x_out := x_out + 1;
+			if (x_out > 160) then
+				x_out := "00000000";
+				y_out := y_out + 1;
+			end if;
+		  end if;
+			
+			-- State Transition
+			if (y_out > 120) then
+          state := STATE_DONE;
+          y_out := "00000000";
+          DONE <= '1';
+          PLOT <= '0';
+      else
+          state := STATE_CLEARING;
+      end if;
         
       when STATE_DONE =>
         -- State Outputs
         DONE <= '1';
         PLOT <= '0';
-        x_y_looper_reset <= '0';
+		  
+		  -- State Action
+		  -- Nothing. Wait for Start
         
         -- State Transition
         if START = '1' then
-          next_state <= STATE_READY;
+          state := STATE_READY;
+          DONE <= '0';
+        else
+          state := STATE_DONE;
         end if;
         
       end case;
     end if;
-  end process;
-  
-  x_y_looper : process(CLOCK, x_y_looper_reset)
-  begin
-    if x_y_looper_reset = '1' then
-      -- asyncronous reset
-      x_out <= "00000000";
-      y_out <= "0000000";
-      x_y_looper_done <= '0';
-      
-    elsif rising_edge(CLOCK) then
-      if (x_y_looper_done = '0') then
-        -- on clock, increment x
-        y_out <= y_out;
-        x_out <= x_out + 1;
-        
-        -- if X overflows the VGA, increment Y
-        if (x_out + 1 > 160) then
-          x_out <= "00000000";
-          y_out <= y_out + 1;
-          
-          -- if Y overflows the VGA, we are done
-          if (y_out + 1 > 120) then
-              y_out <= "0000000";
-              x_y_looper_done <= '1';
-          end if;
-        end if;
-      end if;      
-    end if;  
-  end process;
-  
-  state <= next_state;
   X <= std_logic_vector(x_out);
-  Y <= std_logic_vector(y_out);
-    
+  Y <= std_logic_vector(y_out(6 downto 0));
+  end process;
   
 end behavioural;

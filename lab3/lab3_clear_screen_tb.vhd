@@ -147,7 +147,7 @@ begin
         
         assert(PLOT = '1')
           report "FAILED LOOP - PLOT WAS NOT 1"
-          severity failure;
+          severity warning;
           
         -- Manually clock once
         clock <= '0';
@@ -228,7 +228,48 @@ begin
         
       assert(PLOT = '0')
         report "FAILED ASYNC RESET - PLOT WAS NOT 0"
-        severity failure;    
+        severity failure;
+        
+      -- test that we iterate through the entire VGA output
+      clock <= '0';
+      reset <= '1';
+      start <= '0';
+      wait for 1 ns;
+
+      -- clock once to kick it into CLEARING state      
+      --clock <= '1';
+      --wait for 1 ns;
+      
+      for y_index in 0 to 120 loop
+      for x_index in 0 to 160 loop
+   
+        report "Validating (x,y): (" & integer'image(x_index) & "," & integer'image(y_index) & ")";
+        
+        -- validate reset
+        assert(DONE = '0')
+          report "FAILED LOOP, DONE WAS NOT '0'"
+          severity failure;
+        
+        assert(X = std_logic_vector(to_unsigned(x_index,X'length)))
+          report "FAILED LOOP, X WAS NOT " & integer'image(x_index)
+          severity failure;
+        
+        assert(Y = std_logic_vector(to_unsigned(y_index,Y'length)))
+          report "FAILED LOOP, Y WAS NOT " & integer'image(y_index)
+          severity failure;
+        
+        assert(PLOT = '1')
+          report "FAILED LOOP - PLOT WAS NOT 1"
+          severity failure;
+          
+        -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
+        
+      end loop;
+      end loop;    
       
         
       report "================== ALL TESTS PASSED =============================";
