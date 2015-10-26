@@ -48,6 +48,7 @@ architecture rtl of lab3 is
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
 	signal plot	 : std_logic;
+	signal colour	:	std_logic_vector(2 downto 0);
 	
 	signal clear_x			: std_logic_vector(7 downto 0);
 	signal clear_y			: std_logic_vector(6 downto 0);
@@ -63,7 +64,7 @@ begin
 		generic map(RESOLUTION => "160x120") 
 		port map(resetn		=> KEY(3),
 						 clock		 => CLOCK_50,
-						 colour		=> SW(17 downto 15),
+						 colour		=> colour,
 						 x				 => x,
 						 y				 => y,
 						 plot			=> plot,
@@ -96,6 +97,7 @@ begin
 			y <= "0000000";
 			plot <= '0';
 			clear_start <= '0';
+			colour <= "000";
 			
 			current_state := STATE_0_INITIALIZE;
 		else
@@ -107,6 +109,7 @@ begin
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '0';
+				colour <= SW(17 downto 15);
 				
 				current_state := STATE_1_CLEAR_SCREEN;
 			
@@ -117,6 +120,7 @@ begin
 				y <= clear_y;
 				plot <= clear_plot;
 				clear_start <= '0';
+				colour <= SW(17 downto 15);
 				
 				-- Next State
 				if (clear_done = '1') then
@@ -132,6 +136,7 @@ begin
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '1';
+				colour <= not SW(17 downto 15);
 
 				-- Next State
 				if (SW(0) = '1') then
@@ -147,6 +152,7 @@ begin
 				y <= clear_y;
 				plot <= clear_plot;
 				clear_start <= '0';
+				colour <= not SW(17 downto 15);
 				
 				-- Next State
 				if (clear_done = '1') then
@@ -161,6 +167,7 @@ begin
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '1';
+				colour <= "000";
 				
 				current_state := STATE_COMPLETE;
 			end case;
