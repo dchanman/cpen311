@@ -130,12 +130,20 @@ begin
 			PLOT => line_plot,
 			DONE => line_done);
 		
+--	LEDR(0) <= clear_reset;
+--	LEDR(1) <= clear_start;
+--	LEDR(2) <= clear_done;
+--	
+--	LEDR(17 downto 10) <= x;
+--	LEDR(9 downto 3) <= y;
+	
 	LEDR(0) <= clear_reset;
 	LEDR(1) <= clear_start;
 	LEDR(2) <= clear_done;
-	
-	LEDR(17 downto 10) <= x;
-	LEDR(9 downto 3) <= y;
+	LEDR(3) <= line_reset;
+	LEDR(4) <= line_start;
+	LEDR(5) <= line_done;
+	LEDR(6) <= plot;
 
 	state_machine : process(KEY(0), CLOCK_50)
 	variable current_state : MY_STATES := STATE_0_INITIALIZE;
