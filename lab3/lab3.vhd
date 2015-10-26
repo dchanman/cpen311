@@ -7,6 +7,7 @@ entity lab3 is
        KEY                 : in  std_logic_vector(3 downto 0);
        SW                  : in  std_logic_vector(17 downto 0);
        LEDR                : out  std_logic_vector(17 downto 0);
+     --  LEDG                : out std_logic
        VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);  -- The outs go to VGA controller
        VGA_HS              : out std_logic;
        VGA_VS              : out std_logic;
@@ -30,9 +31,24 @@ architecture rtl of lab3 is
           VGA_R, VGA_G, VGA_B                          : out std_logic_vector(9 downto 0);
           VGA_HS, VGA_VS, VGA_BLANK, VGA_SYNC, VGA_CLK : out std_logic);
   end component;
+  
+component blanker is
+  port(CLOCK_50            : in  std_logic;
+       reset               : in  std_logic;
+       xout                   : out std_logic_vector(7 downto 0);
+       yout                  : out std_logic_vector(6 downto 0);
+       colour              : out std_logic_vector(2 downto 0);
+       blanker_done                : out std_logic;
+       plot                : out std_logic);
+end component blanker;
+
 
   signal x      : std_logic_vector(7 downto 0);
   signal y      : std_logic_vector(6 downto 0);
+  signal x_tovga      : std_logic_vector(7 downto 0);
+  signal y_tovga      : std_logic_vector(6 downto 0);
+  signal colour_tovga : std_logic_vector(2 downto 0);
+  signal plot_tovga   : std_logic;
   signal colour : std_logic_vector(2 downto 0);
   signal plot   : std_logic;
   
@@ -45,9 +61,19 @@ architecture rtl of lab3 is
   signal y_init : std_logic := '0';
   signal load_y : std_logic; 
   
-  signal current_state : std_logic_vector(1 downto 0) := "00";
-  signal next_state : std_logic_vector(1 downto 0);
-  signal colour_signal : std_logic_vector(7 downto 0);
+  signal cblankstate : std_logic_vector(1 downto 0) := "00";
+  signal nblank_state : std_logic_vector(1 downto 0);
+  
+  signal current_state : std_logic_vector(2 downto 0) := "000";
+  signal next_state : std_logic_vector(2 downto 0);
+  
+  signal colourb : std_logic_vector(2 downto 0);
+  signal rest_blanker : std_logic;
+  signal blanker_done : std_logic;
+  signal xb : std_logic_vector(7 downto 0);
+  signal yb : std_logic_vector(6 downto 0);
+  signal plotb : std_logic;
+  signal blanking : std_logic;
 
 begin
 
@@ -57,10 +83,10 @@ begin
     generic map(RESOLUTION => "160x120") 
     port map(resetn    => KEY(3),
              clock     => CLOCK_50,
-             colour    => colour,
-             x         => x,
-             y         => y,
-             plot      => plot,
+             colour    => colour_tovga,
+             x         => x_tovga,
+             y         => y_tovga,
+             plot      => plot_tovga,
              VGA_R     => VGA_R,
              VGA_G     => VGA_G,
              VGA_B     => VGA_B,
@@ -70,115 +96,77 @@ begin
              VGA_SYNC  => VGA_SYNC,
              VGA_CLK   => VGA_CLK);
 
+  blank : blanker port map (
+       CLOCK_50        => CLOCK_50,
+       reset           => rest_blanker,
+       xout               => xb,
+       yout               => yb,
+       colour          => colourb,
+       plot            => plotb,
+       blanker_done    => blanker_done);
 
-  -- rest of your code goes here, as well as possibly additional files
-  --FSM
+       
   process(all) begin
+  blanking <= '0';
+  --next_state <= "000";
+  
     case current_state is
-      when "00" =>
-        x_init <= '1';
-        y_init <= '1';
-        plot <= '0';
-        load_y <= '1';
-        next_state <= "01";
-      when "01" =>
-        x_init <= '0';
-        y_init <= '0';
-        load_y <= '0';
-        if(x_done = '1') then
-          next_state <= "10";
+      when "000" =>
+        rest_blanker <= '0';
+        next_state <= "001";
+        blanking <= '0';
+      when "001" => 
+        rest_blanker <= '1';
+        blanking <= '1';
+        if(blanker_done = '1') then
+          next_state <= "010";
         else
-          next_state <= "01";
+          next_state <= "001";
         end if;
-        plot <= '1';
-      when "10" =>
-        x_init <= '1';
-        load_y <= '1';
-        y_init <= '0';
-        plot <= '0';
-        if(y_done = '1') then
-          next_state <= "11";
-        else
-          next_state <= "01";
-        end if;
-      when "11" =>
-        x_init <= '0';
-        plot <= '0';
-        load_y <= '0';
-        y_init <= '0';
-        next_state <= "11";
-      when others => 
-        x_init <= '0';
-        plot <= '0';
-        y_init <= '0';
-        load_y <= '0';
-        next_state <= "11";
+      when "010" => 
+        rest_blanker <= '0';
+        next_state <= "010";
+      when "011" => 
+        rest_blanker <= '0';
+        next_state <= "001";
+      when "100" =>   
+        rest_blanker <= '0';
+        next_state <= "001";
+      when others =>
+        rest_blanker <= '0';
+        next_state <= "001";
     end case;
     
     if (KEY(3) = '0') then
-      next_state <= "00";
+      next_state <= "000";
     end if; 
-  end process;
-      
+  end process;  
+  
   process(CLOCK_50) begin
     if(rising_edge(CLOCK_50)) then
       current_state <= next_state;
     end if;
   end process;
         
-  --DATAPATH
-  process(CLOCK_50) begin
-    if(rising_edge(CLOCK_50)) then
-      x_counter <= x_counter + 1;
-      if((x_counter > 159)) then
-        x_counter <= (others => '0');
-        x_done <= '1';
-      end if;
-      
-      if(x_init = '1') then
-        x_done <= '0';
-        x_counter <= (others => '0');
-      end if;
+  process(all)begin
+    if(blanking = '1') then
+      x_tovga <= xb;
+      y_tovga <= yb;
+      colour_tovga <= colourb;
+      plot_tovga <= plotb;
+    else
+      x_tovga <= x;
+      y_tovga <= y;
+      colour_tovga <= colour;
+      plot_tovga <= plot;
     end if;
   end process;
-  
-   process(CLOCK_50) begin
-    if(rising_edge(CLOCK_50)) then
-      if((y_counter > 119)) then
-        y_counter <= (others => '0');
-        y_done <= '1';
-      elsif (load_y = '0') then
-        y_counter <= y_counter;
-      else
-        y_counter <= y_counter + 1;
-      end if;
-      
-      if(y_init = '1') then
-        y_done <= '0';
-        y_counter <= (others => '0');
-      end if;
-    end if;
-  end process;
-     
-     LEDR(17 downto 11) <= x(6 downto 0);
-     LEDR(6 downto 0) <= y;
-     LEDR(10) <= x_done;
-     LEDR(9) <= y_done;
-     LEDR(8 downto 7) <= current_state;
-    -- LEDR(7) <= plot;
-     
-     x <= std_logic_vector(x_counter);
-     y <= std_logic_vector(y_counter);
-     colour_signal <= std_logic_vector((x_counter mod 8)); -- will i need to worry about the bits on this?
-     colour <= colour_signal(2 downto 0);
-     
-  --process(all) begin
-    
-       
-  --process (all) begin
-    --for Xl in 159 downto 0 loop
-      --for Yl in 119 downto 0 loop 
-        --x <= 
+ 
+ LEDR(17) <= blanker_done;
+ LEDR(15) <= plotb;
+ LEDR(14) <= rest_blanker;
+ LEDR(13 downto 11) <= current_state;
+ LEDR(2) <= blanking;
 
 end RTL;
 
