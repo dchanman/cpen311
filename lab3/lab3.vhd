@@ -124,9 +124,11 @@ begin
           next_state <= "001";
         end if;
       when "010" => 
+        --Done blanking the screen time for i=1
         rest_blanker <= '0';
         next_state <= "010";
       when "011" => 
+        --Drawing a line
         rest_blanker <= '0';
         next_state <= "001";
       when "100" =>   
