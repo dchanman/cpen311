@@ -43,6 +43,21 @@ architecture rtl of lab3 is
 		DONE	: out std_logic);
 	end component;
 	
+	component lab3_draw_line is
+	port(
+    CLOCK  : in  std_logic;
+    RESET : in  std_logic;
+    START : in  std_logic;
+    X0  : in  unsigned(7 downto 0);
+    X1  : in  unsigned(7 downto 0);
+    Y0  : in  unsigned(7 downto 0);
+    Y1  : in  unsigned(7 downto 0);
+    X : out unsigned(7 downto 0);
+    Y : out unsigned(7 downto 0);
+    PLOT  : out std_logic;
+    DONE  : out std_logic);
+	end component;
+	
 	type STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_WAIT, STATE_3_CLEAR_SCREEN, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
@@ -55,6 +70,12 @@ architecture rtl of lab3 is
 	signal clear_plot	 : std_logic;
 	signal clear_start	 : std_logic;
 	signal clear_done	 : std_logic;
+	
+	signal line_x			: unsigned(7 downto 0);
+	signal line_y			: unsigned(7 downto 0);
+	signal line_plot	 : std_logic;
+	signal line_start	 : std_logic;
+	signal line_done	 : std_logic;
 
 begin
 
@@ -87,6 +108,21 @@ begin
 			Y => clear_y,
 			PLOT => clear_plot,
 			DONE => clear_done);
+			
+	lab3_draw_line_u1 : lab3_draw_line
+		port map(
+			CLOCK => CLOCK_50,
+			RESET => KEY(0),
+			START => line_start,
+			X0 => to_unsigned(0,8),
+			Y0 => to_unsigned(0,8),
+			X1 => to_unsigned(50,8),
+			Y1 => to_unsigned(50,8),
+			X => line_x,
+			Y => line_y,
+			PLOT => line_plot,
+			DONE => line_done);
+		
 
 	state_machine : process(KEY(0), CLOCK_50)
 	variable current_state : STATES := STATE_0_INITIALIZE;
@@ -96,7 +132,8 @@ begin
 			x <= "00000000";
 			y <= "0000000";
 			plot <= '0';
-			clear_start <= '0';
+			clear_start <= '1';
+			line_start <= '1';
 			colour <= "000";
 			
 			current_state := STATE_0_INITIALIZE;
@@ -108,7 +145,8 @@ begin
 				x <= "00000000";
 				y <= "0000000";
 				plot <= '0';
-				clear_start <= '0';
+				clear_start <= '1';
+				line_start <= '1';
 				colour <= SW(17 downto 15);
 				
 				current_state := STATE_1_CLEAR_SCREEN;
@@ -120,6 +158,7 @@ begin
 				y <= clear_y;
 				plot <= clear_plot;
 				clear_start <= '0';
+				line_start <= '1';
 				colour <= SW(17 downto 15);
 				
 				-- Next State
@@ -136,6 +175,7 @@ begin
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '1';
+				line_start <= '1';
 				colour <= not SW(17 downto 15);
 
 				-- Next State
@@ -152,6 +192,7 @@ begin
 				y <= clear_y;
 				plot <= clear_plot;
 				clear_start <= '0';
+				line_start <= '1';
 				colour <= not SW(17 downto 15);
 				
 				-- Next State
@@ -167,6 +208,7 @@ begin
 				y <= "0000000";
 				plot <= '0';
 				clear_start <= '1';
+				line_start <= '1';
 				colour <= "000";
 				
 				current_state := STATE_COMPLETE;
