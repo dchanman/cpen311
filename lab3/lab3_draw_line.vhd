@@ -127,9 +127,12 @@ x_y_looper : process(x_y_looper_reset, CLOCK)
     elsif rising_edge(CLOCK) then
         -- check if we are finished
         if not ((x_out = X1) and (y_out = Y1)) then
+          
+          
+          
           -- if e2 > -dy
-          if (e2 > (to_signed(0,10) - "00" & dy)) then
-            err := err - to_integer(dy);
+          if (e2 > - ("00" & dy)) then
+            err := err - to_integer("00" & dy);
             case sx is
             when SLOPE_POSITIVE =>
               x_out <= x_out + 1;
@@ -138,9 +141,12 @@ x_y_looper : process(x_y_looper_reset, CLOCK)
             end case;
           end if;
           
+          
+          
+          
           -- if e2 < dx
           if (e2 < dx) then
-            err := err + dx;
+            err := err + to_integer("00" & dx);
             case sy is
             when SLOPE_POSITIVE =>
               y_out <= y_out + 1;
@@ -148,6 +154,9 @@ x_y_looper : process(x_y_looper_reset, CLOCK)
               y_out <= y_out - 1;
             end case;
           end if;     
+          
+          
+          
         end if;      
     end if;
   end process;

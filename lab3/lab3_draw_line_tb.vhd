@@ -387,33 +387,11 @@ begin
           report "FAILED LOOP, DONE WAS NOT '0'"
           severity failure;
         
-        assert(Y = to_unsigned(x_index,Y'length)+1)
+        assert(Y = to_unsigned(x_index,Y'length))
           report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
           severity warning;
           
         assert(X = to_unsigned(x_index,X'length))
-          report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
-          severity warning;
-        
-        assert(PLOT = '1')
-          report "FAILED LOOP - PLOT WAS NOT 1"
-          severity failure;        
-          
-        -- Manually clock once
-        clock <= '0';
-        wait for 1 ns;
-        clock <= '1';
-        wait for 1 ns;
-        
-        assert(DONE = '0')
-          report "FAILED LOOP, DONE WAS NOT '0'"
-          severity failure;
-        
-        assert(Y = to_unsigned(x_index,Y'length)+1)
-          report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
-          severity warning;
-          
-        assert(X = to_unsigned(x_index,X'length)+1)
           report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
           severity warning;
         
@@ -481,17 +459,17 @@ begin
           report "FAILED LOOP, DONE WAS NOT '0'"
           severity failure;
         
-        assert(Y = to_unsigned(x_index,Y'length)+1)
+        assert(PLOT = '1')
+          report "FAILED LOOP - PLOT WAS NOT 1"
+          severity failure;
+          
+        assert(Y = to_unsigned(x_index,Y'length))
           report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
           severity warning;
           
         assert(X = to_unsigned(x_index,X'length))
           report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
-          severity warning;
-        
-        assert(PLOT = '1')
-          report "FAILED LOOP - PLOT WAS NOT 1"
-          severity failure;        
+          severity warning;      
           
         -- Manually clock once
         clock <= '0';
@@ -499,28 +477,7 @@ begin
         clock <= '1';
         wait for 1 ns;
         
-        assert(DONE = '0')
-          report "FAILED LOOP, DONE WAS NOT '0'"
-          severity failure;
-        
-        assert(Y = to_unsigned(x_index,Y'length)+1)
-          report "FAILED LOOP, Y expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(Y)) & ">"
-          severity warning;
-          
-        assert(X = to_unsigned(x_index,X'length)+1)
-          report "FAILED LOOP, X expected: <" & integer'image(x_index)  & "> actual <" & integer'image(to_integer(X)) & ">"
-          severity warning;
-        
-        assert(PLOT = '1')
-          report "FAILED LOOP - PLOT WAS NOT 1"
-          severity failure;        
-          
-        -- Manually clock once
-        clock <= '0';
-        wait for 1 ns;
-        clock <= '1';
-        wait for 1 ns;
-  
+               
       end loop;
       
       -- Manually clock once
@@ -550,7 +507,68 @@ begin
         severity failure;
 
       report "================== ALL TESTS PASSED =============================";
-                                                                              
+      -- validate resetting state when reset goes low
+      report "Validating reset";
+      reset <= '0';
+      start <= '1';
+      wait for 1 ns;
+      
+      assert(DONE = '0')
+        report "FAILED ASYNC RESET - DONE WAS NOT 1"
+        severity failure;
+        
+      assert(X = "00000000")
+        report "FAILED ASYNC RESET - X WAS NOT 0"
+        severity failure;
+        
+      assert(Y = "0000000")
+        report "FAILED ASYNC RESET - Y WAS NOT 0"
+        severity failure;
+        
+      assert(PLOT = '0')
+        report "FAILED ASYNC RESET - PLOT WAS NOT 0"
+        severity failure;
+      
+      
+      -- reset
+      start <= '1';
+      wait for 1 ns;
+
+      clock <= '0';
+      reset <= '1';
+      start <= '0';
+      X0 <= to_unsigned(0,8);
+      X1 <= to_unsigned(159,8);
+      Y0 <= to_unsigned(8,8);
+      Y1 <= to_unsigned(112,8);
+      wait for 1 ns;
+      
+          -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
+      
+      
+      for a_index in to_integer(X0) to to_integer(X1)-1 loop
+      for x_index in to_integer(X0) to to_integer(X1)-1 loop
+        report "Validating straight line: (0," & integer'image(x_index) & ")";
+        
+        -- validate reset
+        assert(DONE = '0')
+          report "FAILED LOOP, DONE WAS NOT '0'"
+          severity failure;
+          
+        -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
+  
+      end loop;
+    end loop;
+      
+                                                                       
       wait; --- we are done.  Wait for ever
     end process;
 end behavioural;
