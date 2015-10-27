@@ -147,11 +147,11 @@ begin
 	line_start <= '1';
 	
 	
-	LEDR(15 downto 8) <= clear_x;
-	LEDR(7 downto 1) <= clear_y;
-	LEDG(7) <= SW(0);
-	LEDG(6) <= SW(1);
-	LEDG(5) <= clear_done;
+	--LEDR(15 downto 8) <= clear_x;
+	--LEDR(7 downto 1) <= clear_y;
+	--LEDG(7) <= SW(0);
+	--LEDG(6) <= SW(1);
+	--LEDG(5) <= clear_done;
 	
 --	state_machine : process(CLOCK_50, SW(0))
 --	
