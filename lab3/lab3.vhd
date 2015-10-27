@@ -144,6 +144,7 @@ begin
 		variable line_i : integer;
 		variable grey_colour	: std_logic_vector(2 downto 0);
 		variable line_i_mod8 : std_logic_vector(2 downto 0);
+		variable one_sec_counter : unsigned(25 downto 0);
 
 	BEGIN
 		-- binary to grey conversion
@@ -155,6 +156,7 @@ begin
 		-- Asynchronous reset
 		if (KEY(0) = '0') then
 			LEDG <= "10101010";
+			one_sec_counter := to_unsigned(0, one_sec_counter'length);
 			
 			x <= "00000000";
 			y <= "0000000";
@@ -179,6 +181,7 @@ begin
 			when STATE_0_INITIALIZE =>
 				-- State Outputs
 				LEDG <= "00000000";
+				one_sec_counter := to_unsigned(0, one_sec_counter'length);
 				
 				x <= clear_x;
 				y <= clear_y;
@@ -202,6 +205,7 @@ begin
 			when STATE_1_CLEAR_SCREEN =>
 				-- State Outputs
 				LEDG <= "00000001";
+				one_sec_counter := to_unsigned(0, one_sec_counter'length);
 				
 				x <= clear_x;
 				y <= clear_y;
@@ -228,6 +232,7 @@ begin
 			when STATE_2_DRAW_LINE =>
 				-- State Outputs
 				LEDG <= "00000011";
+				one_sec_counter := to_unsigned(0, one_sec_counter'length);
 				
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
@@ -254,6 +259,7 @@ begin
 			when STAGE_3_PREPARE_LINE =>
 				-- State Outputs
 				LEDG <= "00000111";
+				one_sec_counter := one_sec_counter + 1;
 				
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
@@ -271,7 +277,7 @@ begin
 				line_start <= '1';
 								
 				-- Next State
-				if (KEY(1) = '0') then
+				if (one_sec_counter > to_unsigned(50000000,one_sec_counter'length)) then
 					line_i := line_i + 8;
 					if (line_i <= 8*14) then
 						current_state := STATE_2_DRAW_LINE;
@@ -285,6 +291,7 @@ begin
 			when others =>
 				-- State Outputs
 				LEDG <= "11111111";
+				one_sec_counter := to_unsigned(0, one_sec_counter'length);
 				
 				x <= "00000000";
 				y <= "0000000";
