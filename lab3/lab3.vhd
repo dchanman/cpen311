@@ -142,8 +142,15 @@ begin
 	
 		variable current_state : MY_STATES := STATE_0_INITIALIZE;
 		variable line_i : integer;
+		variable grey_colour	: std_logic_vector(2 downto 0);
+		variable line_i_mod8 : std_logic_vector(2 downto 0);
 
 	BEGIN
+		-- binary to grey conversion
+		line_i_mod8 := std_logic_vector(to_unsigned((line_i/8) mod 8, line_i_mod8'length));
+		grey_colour(2) := line_i_mod8(2);
+		grey_colour(1) := line_i_mod8(1) xor line_i_mod8(0);
+		grey_colour(0) := line_i_mod8(2) xor line_i_mod8(1);
 	
 		-- Asynchronous reset
 		if (KEY(0) = '0') then
@@ -225,7 +232,7 @@ begin
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
 				plot <= line_plot;
-				colour <= not SW(17 downto 15);
+				colour <= grey_colour;
 				
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
@@ -251,7 +258,7 @@ begin
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
 				plot <= line_plot;
-				colour <= not SW(17 downto 15);
+				colour <= grey_colour;
 				
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
