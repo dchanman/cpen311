@@ -141,7 +141,7 @@ begin
 	state_machine : process(CLOCK_50, KEY(0))
 	
 		variable current_state : MY_STATES := STATE_0_INITIALIZE;
-		variable line_i : unsigned(7 downto 0) := to_unsigned(1,8);
+		variable line_i : integer;
 
 	BEGIN
 	
@@ -154,11 +154,11 @@ begin
 			plot <= '0';
 			colour <= SW(17 downto 15);
 			
-			line_i := to_unsigned(8,line_i'length);
+			line_i := 8;
 			x0 <= to_unsigned(0,x0'length);
 			x1 <= to_unsigned(159,x1'length);
-			y0 <= line_i;
-			y1 <= to_unsigned(120,y1'length) - line_i;
+			y0 <= to_unsigned(line_i,y0'length);
+			y1 <= to_unsigned(120 - line_i,y1'length);
 			
 			clear_reset <= '0';
 			clear_start <= '1';
@@ -178,11 +178,11 @@ begin
 				plot <= clear_plot;
 				colour <= SW(17 downto 15);
 				
-				line_i := to_unsigned(8,line_i'length);
+				line_i := 8;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
-				y0 <= line_i;
-				y1 <= to_unsigned(120,y1'length) - line_i;
+				y0 <= to_unsigned(line_i,y0'length);
+				y1 <= to_unsigned(120 - line_i,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -201,11 +201,11 @@ begin
 				plot <= clear_plot;
 				colour <= SW(17 downto 15);
 				
-				line_i := to_unsigned(8,line_i'length);
+				line_i := 8;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
-				y0 <= line_i;
-				y1 <= to_unsigned(120,y1'length) - line_i;
+				y0 <= to_unsigned(line_i,y0'length);
+				y1 <= to_unsigned(120 - line_i,y1'length);
 				
 				clear_reset <= '1';
 				clear_start <= '0';
@@ -228,15 +228,11 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
-				line_i := to_unsigned(8,line_i'length);
---				x0 <= to_unsigned(0,x0'length);
---				x1 <= to_unsigned(159,x1'length);
---				y0 <= line_i;
---				y1 <= to_unsigned(120,y1'length) - line_i;
+				line_i := 8;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
-				y0 <= to_unsigned(50,y0'length);
-				y1 <= to_unsigned(50,y1'length);
+				y0 <= to_unsigned(line_i,y0'length);
+				y1 <= to_unsigned(120 - line_i,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -259,11 +255,11 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
-				line_i := to_unsigned(16,line_i'length);
+				line_i := 16;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
-				y0 <= line_i;
-				y1 <= to_unsigned(120,y1'length) - line_i;
+				y0 <= to_unsigned(line_i,y0'length);
+				y1 <= to_unsigned(120 - line_i,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -286,15 +282,11 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
-				line_i := to_unsigned(16,line_i'length);
---				x0 <= to_unsigned(0,x0'length);
---				x1 <= to_unsigned(159,x1'length);
---				y0 <= line_i;
---				y1 <= to_unsigned(120,y1'length) - line_i;
+				line_i := 16;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
-				y0 <= to_unsigned(30,y0'length);
-				y1 <= to_unsigned(80,y1'length);
+				y0 <= to_unsigned(line_i,y0'length);
+				y1 <= to_unsigned(120 - line_i,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
