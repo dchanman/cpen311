@@ -109,29 +109,36 @@ begin
 	lab3_clear_screen_u1 : lab3_clear_screen
 		port map(
 			CLOCK	=> CLOCK_50,
-			RESET => SW(0),
-			START => SW(1),
-			X => x,
-			Y => y,
-			PLOT => plot,
-			DONE => LEDG(3));
-			
-	colour <= SW(17 downto 15);
+			RESET => clear_reset,
+			START => clear_start,
+			X => clear_x,
+			Y => clear_y,
+			PLOT => clear_plot,
+			DONE => clear_done);
 			
 	lab3_draw_line_u1 : lab3_draw_line
 		port map(
 			CLOCK => CLOCK_50,
-			RESET => line_reset,
-			START => line_start,
+			RESET => SW(0),
+			START => SW(1),
 			X0 => x0,
 			Y0 => y0,
 			X1 => x1,
 			Y1 => y1,
 			X => line_x,
 			Y => line_y,
-			PLOT => line_plot,
-			DONE => line_done);
-
+			PLOT => plot,
+			DONE => LEDG(3));
+	
+	x0 <= to_unsigned(50,8);
+	y0 <= to_unsigned(50,8);
+	x1 <= unsigned(SW(17 downto 10));
+	y1 <= unsigned("0" & SW(9 downto 3));
+	x <= std_logic_vector(line_x);
+	y <= std_logic_vector(line_y(6 downto 0));
+	
+	colour <= SW(2 downto 0);
+			
 end RTL;
 
 

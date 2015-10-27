@@ -77,9 +77,8 @@ begin
         x_y_looper_reset <= '0';
         
         -- State Transition
-        if START = '1' then
-          next_state <= STATE_READY;
-        end if;
+		  -- We are done, let the async reset take us back to the ready state
+		  next_state <= STATE_DONE;
       end case;
     end if;
   end process;

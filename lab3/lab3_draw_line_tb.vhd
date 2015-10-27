@@ -234,8 +234,9 @@ begin
         severity failure;
                        
         
-      -- validate resetting state when start goes high
+      -- validate resetting state when reset goes low
       report "Validating reset";
+      reset <= '0';
       start <= '1';
       wait for 1 ns;
       
@@ -321,6 +322,28 @@ begin
       assert(PLOT = '0')
         report "FAILED DONE - PLOT WAS NOT 0"
         severity failure;
+      
+      -- validate resetting state when reset goes low
+      report "Validating reset";
+      reset <= '0';
+      start <= '1';
+      wait for 1 ns;
+      
+      assert(DONE = '0')
+        report "FAILED ASYNC RESET - DONE WAS NOT 1"
+        severity failure;
+        
+      assert(X = X0)
+        report "FAILED ASYNC RESET - X WAS NOT 0"
+        severity failure;
+        
+      assert(Y = Y0)
+        report "FAILED ASYNC RESET - Y WAS NOT 0"
+        severity failure;
+        
+      assert(PLOT = '0')
+        report "FAILED ASYNC RESET - PLOT WAS NOT 0"
+        severity failure;
                
 
       report "================== VALIDATING DIAGONAL LINE 0 =============================";
@@ -394,6 +417,28 @@ begin
         wait for 1 ns;
   
       end loop;
+      
+      -- validate resetting state when reset goes low
+      report "Validating reset";
+      reset <= '0';
+      start <= '1';
+      wait for 1 ns;
+      
+      assert(DONE = '0')
+        report "FAILED ASYNC RESET - DONE WAS NOT 1"
+        severity failure;
+        
+      assert(X = "00000000")
+        report "FAILED ASYNC RESET - X WAS NOT 0"
+        severity failure;
+        
+      assert(Y = "0000000")
+        report "FAILED ASYNC RESET - Y WAS NOT 0"
+        severity failure;
+        
+      assert(PLOT = '0')
+        report "FAILED ASYNC RESET - PLOT WAS NOT 0"
+        severity failure;
       
       report "================== VALIDATING DIAGONAL LINE 1 =============================";
       -- reset
