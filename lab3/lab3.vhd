@@ -201,7 +201,6 @@ begin
 				plot <= clear_plot;
 				colour <= SW(17 downto 15);
 				
-				line_i := 8;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
 				y0 <= to_unsigned(line_i,y0'length);
@@ -228,7 +227,6 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
-				line_i := 8;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
 				y0 <= to_unsigned(line_i,y0'length);
@@ -255,7 +253,6 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
-				line_i := 16;
 				x0 <= to_unsigned(0,x0'length);
 				x1 <= to_unsigned(159,x1'length);
 				y0 <= to_unsigned(line_i,y0'length);
@@ -268,36 +265,14 @@ begin
 								
 				-- Next State
 				if (KEY(1) = '0') then
-					current_state := STATE_3_DRAW_LINE;
+					line_i := line_i + 8;
+					if (line_i <= 8*14) then
+						current_state := STATE_2_DRAW_LINE;
+					else
+						current_state := STATE_COMPLETE;
+					end if;
 				else
 					current_state := STAGE_3_PREPARE_LINE;
-				end if;
-				
-			when STATE_3_DRAW_LINE =>
-				-- State Outputs
-				LEDG <= "00001111";
-				
-				x <= std_logic_vector(line_x);
-				y <= std_logic_vector(line_y(6 downto 0));
-				plot <= line_plot;
-				colour <= not SW(17 downto 15);
-				
-				line_i := 16;
-				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(159,x1'length);
-				y0 <= to_unsigned(line_i,y0'length);
-				y1 <= to_unsigned(120 - line_i,y1'length);
-				
-				clear_reset <= '0';
-				clear_start <= '1';
-				line_reset <= '1';
-				line_start <= '0';
-								
-				-- Next State
-				if (line_done = '1') then
-					current_state := STATE_COMPLETE;
-				else
-					current_state := STATE_3_DRAW_LINE;
 				end if;
 						
 			when others =>
