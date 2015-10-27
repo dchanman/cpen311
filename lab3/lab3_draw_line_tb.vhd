@@ -146,6 +146,12 @@ begin
       Y1 <= to_unsigned(0,8);
       wait for 1 ns;
       
+        -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
+          
       
       for x_index in to_integer(X0) to to_integer(X1) loop
         report "Validating straight line: (" & integer'image(x_index) & ",0)";
@@ -267,6 +273,11 @@ begin
       Y1 <= to_unsigned(0,8);
       wait for 1 ns;
       
+      -- Manually clock once
+        clock <= '0';
+        wait for 1 ns;
+        clock <= '1';
+        wait for 1 ns;
       
       for x_index in to_integer(X0) downto to_integer(X1) loop
         report "Validating straight line: (" & integer'image(x_index) & ",0)";
@@ -286,7 +297,7 @@ begin
           severity failure;
         
         assert(PLOT = '1')
-          report "FAILED LOOP - PLOT WAS NOT 1"
+          report "FAILED LOOP - PLOT WAS NOT 0"
           severity failure;        
           
         -- Manually clock once
@@ -511,6 +522,12 @@ begin
         wait for 1 ns;
   
       end loop;
+      
+      -- Manually clock once
+      clock <= '0';
+      wait for 1 ns;
+      clock <= '1';
+      wait for 1 ns;
     
                      
       -- validate done

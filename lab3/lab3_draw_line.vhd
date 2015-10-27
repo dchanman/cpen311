@@ -25,7 +25,6 @@ architecture behavioural of lab3_draw_line is
   signal next_state : STATES := STATE_READY;
   
   signal x_y_looper_reset : std_logic;
-  signal x_y_looper_done : std_logic;
   signal x_out : unsigned(7 downto 0);
   signal y_out : unsigned(7 downto 0);
   
@@ -36,7 +35,7 @@ architecture behavioural of lab3_draw_line is
   signal sy : slope;
 begin
 
- state_machine : process(ALL)
+ state_machine : process(RESET, CLOCK)
   begin
     if RESET = '0' then
       -- asyncronous reset
@@ -44,7 +43,7 @@ begin
       DONE <= '0';
       PLOT <= '0';
       x_y_looper_reset <= '1';
-    else
+    elsif rising_edge(CLOCK) then
       next_state <= state;
       
       case state is
@@ -57,6 +56,9 @@ begin
         -- State Transition
         if START = '0' then
           next_state <= STATE_DRAWING;
+          DONE <= '0';
+          PLOT <= '1';
+          x_y_looper_reset <= '0';
         end if;
         
       when STATE_DRAWING =>
@@ -66,8 +68,11 @@ begin
         x_y_looper_reset <= '0';
         
         -- State Transition
-        if (x_y_looper_done = '1') then 
+        if (x_out = X1 and y_out = Y1) then 
           next_state <= STATE_DONE;
+          DONE <= '1';
+          PLOT <= '0';
+          x_y_looper_reset <= '0';
         end if;
         
       when STATE_DONE =>
@@ -104,7 +109,7 @@ begin
 	end if;
 END PROCESS;
   
-x_y_looper : process(ALL)
+x_y_looper : process(x_y_looper_reset, CLOCK)
 	variable err : signed(8 downto 0);
 	variable x_inc : unsigned(7 downto 0);
 	variable y_inc : unsigned(7 downto 0);  
@@ -116,17 +121,12 @@ x_y_looper : process(ALL)
       -- asyncronous reset
       x_out <= X0;
       y_out <= Y0;
-      x_y_looper_done <= '0';
       
       -- calculate err
       err := "0" & (dx - dy);
     elsif rising_edge(CLOCK) then
-      if (x_y_looper_done = '0') then
-        
         -- check if we are finished
-        if (x_out = X1) and (y_out = Y1) then
-          x_y_looper_done <= '1';
-        else    
+        if not ((x_out = X1) and (y_out = Y1)) then
           -- if e2 > -dy
           if (e2 > (to_signed(0,10) - "00" & dy)) then
             err := err - to_integer(dy);
@@ -149,7 +149,6 @@ x_y_looper : process(ALL)
             end case;
           end if;     
         end if;      
-      end if;
     end if;
   end process;
   
