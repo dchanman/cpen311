@@ -18,7 +18,7 @@ architecture behavioural of lab3_clear_screen is
   type CLEAR_SCREEN_STATES is (STATE_READY,STATE_CLEARING,STATE_DONE);
   begin
 
-  state_machine : process(ALL)
+  state_machine : process(CLOCK, RESET)
   variable current_state : CLEAR_SCREEN_STATES := STATE_READY;
   variable x_out : unsigned(7 downto 0) := "00000000";
   variable y_out : unsigned(7 downto 0) := "00000000";
@@ -29,7 +29,7 @@ architecture behavioural of lab3_clear_screen is
       DONE <= '0';
       PLOT <= '0';
 		STATE <= "00";
-    else      
+    elsif rising_edge(CLOCK) then
       case current_state is
       when STATE_READY =>
         -- State Outputs
@@ -55,13 +55,11 @@ architecture behavioural of lab3_clear_screen is
 		  STATE <= "10";
 		  
 		  -- State Action
-		  if (rising_edge(CLOCK)) then
 			x_out := x_out + 1;
 			if (x_out > 160) then
 				x_out := "00000000";
 				y_out := y_out + 1;
 			end if;
-		  end if;
 			
 			-- State Transition
 			if (y_out > 120) then
