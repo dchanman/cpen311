@@ -23,7 +23,8 @@ ARCHITECTURE behavioural OF lab3_clear_screen_tb IS
      X : out std_logic_vector(7 downto 0);
      Y : out std_logic_vector(6 downto 0);
      PLOT  : out std_logic;
-     DONE  : out std_logic);
+     DONE  : out std_logic;
+     STATE  : out std_logic_vector(1 downto 0));
   end component;
 
    -- local signals we will use in the testbench
@@ -45,7 +46,8 @@ begin
 	  X => X,
 	  Y => Y,
 	  PLOT => PLOT,
-	  DONE => DONE
+	  DONE => DONE,
+	  STATE => open
    );
 
 

@@ -10,45 +10,49 @@ entity lab3_clear_screen is
     X : out std_logic_vector(7 downto 0);
     Y : out std_logic_vector(6 downto 0);
     PLOT  : out std_logic;
-    DONE  : out std_logic);
+    DONE  : out std_logic;
+	 STATE : out std_logic_vector(1 downto 0));
 end lab3_clear_screen;
 
 architecture behavioural of lab3_clear_screen is
-  type STATES is (STATE_READY,STATE_CLEARING,STATE_DONE);
+  type CLEAR_SCREEN_STATES is (STATE_READY,STATE_CLEARING,STATE_DONE);
   begin
 
   state_machine : process(ALL)
-  variable state : STATES := STATE_READY;
+  variable current_state : CLEAR_SCREEN_STATES := STATE_READY;
   variable x_out : unsigned(7 downto 0) := "00000000";
   variable y_out : unsigned(7 downto 0) := "00000000";
   begin
     if RESET = '0' then
       -- asyncronous reset
-      state := STATE_READY;
+      current_state := STATE_READY;
       DONE <= '0';
       PLOT <= '0';
+		STATE <= "00";
     else      
-      case state is
+      case current_state is
       when STATE_READY =>
         -- State Outputs
         DONE <= '0';
         PLOT <= '0';
+		  STATE <= "01";
 		  
 		  -- State Action
 		  -- Nothing. Wait for Start
         
         -- State Transition
         if START = '0' then
-          state := STATE_CLEARING;
+          current_state := STATE_CLEARING;
           PLOT <= '1';
         else
-          state := STATE_READY;
+          current_state := STATE_READY;
         end if;
         
       when STATE_CLEARING =>
         -- State Outputs
         DONE <= '0';
         PLOT <= '1';
+		  STATE <= "10";
 		  
 		  -- State Action
 		  if (rising_edge(CLOCK)) then
@@ -61,25 +65,26 @@ architecture behavioural of lab3_clear_screen is
 			
 			-- State Transition
 			if (y_out > 120) then
-          state := STATE_DONE;
+          current_state := STATE_DONE;
           y_out := "00000000";
           DONE <= '1';
           PLOT <= '0';
       else
-          state := STATE_CLEARING;
+          current_state := STATE_CLEARING;
       end if;
         
       when STATE_DONE =>
         -- State Outputs
         DONE <= '1';
         PLOT <= '0';
+		  STATE <= "11";
 		  
 		  -- State Action
 		  -- Nothing. Wait for Start
         
         -- State Transition
 		  -- We are done. Let the async reset take us back
-        state := STATE_DONE;
+        current_state := STATE_DONE;
         
       end case;
     end if;
