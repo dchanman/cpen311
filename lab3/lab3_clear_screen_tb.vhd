@@ -207,14 +207,28 @@ begin
       assert(PLOT = '0')
         report "FAILED ASYNC RESET - PLOT WAS NOT 0"
         severity failure;
-                       
         
-      -- validate resetting state when start goes high
-      report "Validating reset";
+      -- validate not resetting state when start goes high
+      report "Validating releasing start";
       start <= '1';
+      reset <= '1';
       wait for 1 ns;
       
-      assert(DONE = '0')
+      -- done should be independent of clock cycles
+      clock <= '0';
+      wait for 1 ns;
+      clock <= '1';
+      wait for 1 ns;
+      clock <= '0';
+      wait for 1 ns;
+      clock <= '1';
+      wait for 1 ns;
+      clock <= '0';
+      wait for 1 ns;
+      clock <= '1';
+      wait for 1 ns;
+      
+      assert(DONE = '1')
         report "FAILED ASYNC RESET - DONE WAS NOT 1"
         severity failure;
         
@@ -229,6 +243,40 @@ begin
       assert(PLOT = '0')
         report "FAILED ASYNC RESET - PLOT WAS NOT 0"
         severity failure;
+        
+      report "================== TEST PART 2 =============================";
+        
+      -- reset should be asynchronous
+      clock <= '0';
+      reset <= '0';
+      start <= '1';
+      
+      wait for 1 ns;      
+      clock <= '1';
+      wait for 1 ns;      
+      clock <= '0';
+      wait for 1 ns;      
+      clock <= '1';
+      wait for 1 ns;      
+      clock <= '0';
+      
+      -- validate reset
+      assert(DONE = '0')
+        report "FAILED ASYNC RESET - DONE WAS NOT 0"
+        severity failure;
+        
+      assert(X = "00000000")
+        report "FAILED ASYNC RESET - X WAS NOT 0"
+        severity failure;
+        
+      assert(Y = "0000000")
+        report "FAILED ASYNC RESET - Y WAS NOT 0"
+        severity failure;
+        
+      assert(PLOT = '0')
+        report "FAILED ASYNC RESET - PLOT WAS NOT 0"
+        severity failure;
+
         
       -- test that we iterate through the entire VGA output
       clock <= '0';

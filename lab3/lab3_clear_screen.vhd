@@ -78,12 +78,8 @@ architecture behavioural of lab3_clear_screen is
 		  -- Nothing. Wait for Start
         
         -- State Transition
-        if START = '1' then
-          state := STATE_READY;
-          DONE <= '0';
-        else
-          state := STATE_DONE;
-        end if;
+		  -- We are done. Let the async reset take us back
+        state := STATE_DONE;
         
       end case;
     end if;
