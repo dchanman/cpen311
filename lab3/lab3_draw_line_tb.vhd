@@ -539,8 +539,8 @@ begin
       start <= '0';
       X0 <= to_unsigned(0,8);
       X1 <= to_unsigned(159,8);
-      Y0 <= to_unsigned(8,8);
-      Y1 <= to_unsigned(112,8);
+      Y0 <= to_unsigned(16,8);
+      Y1 <= to_unsigned(104,8);
       wait for 1 ns;
       
           -- Manually clock once

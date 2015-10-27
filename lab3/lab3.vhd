@@ -63,8 +63,8 @@ architecture rtl of lab3 is
 		STATE_0_INITIALIZE,
 		STATE_1_CLEAR_SCREEN,
 		STATE_2_DRAW_LINE,
-		STATE_3_WAIT,
-		STATE_4_DRAW_LINE,
+		STAGE_3_PREPARE_LINE,
+		STATE_3_DRAW_LINE,
 		STATE_COMPLETE
 	);
 
@@ -138,14 +138,15 @@ begin
 			PLOT => line_plot,
 			DONE => line_done);
 			
-	state_machine : process(CLOCK_50, SW(0))
+	state_machine : process(CLOCK_50, KEY(0))
 	
 		variable current_state : MY_STATES := STATE_0_INITIALIZE;
+		variable line_i : unsigned(7 downto 0) := to_unsigned(1,8);
 
 	BEGIN
 	
 		-- Asynchronous reset
-		if (SW(0) = '0') then
+		if (KEY(0) = '0') then
 			LEDG <= "10101010";
 			
 			x <= "00000000";
@@ -153,10 +154,11 @@ begin
 			plot <= '0';
 			colour <= SW(17 downto 15);
 			
+			line_i := to_unsigned(8,line_i'length);
 			x0 <= to_unsigned(0,x0'length);
-			x1 <= to_unsigned(0,x1'length);
-			y0 <= to_unsigned(0,y0'length);
-			y1 <= to_unsigned(0,y1'length);
+			x1 <= to_unsigned(159,x1'length);
+			y0 <= line_i;
+			y1 <= to_unsigned(120,y1'length) - line_i;
 			
 			clear_reset <= '0';
 			clear_start <= '1';
@@ -176,10 +178,11 @@ begin
 				plot <= clear_plot;
 				colour <= SW(17 downto 15);
 				
+				line_i := to_unsigned(8,line_i'length);
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(0,x1'length);
-				y0 <= to_unsigned(0,y0'length);
-				y1 <= to_unsigned(0,y1'length);
+				x1 <= to_unsigned(159,x1'length);
+				y0 <= line_i;
+				y1 <= to_unsigned(120,y1'length) - line_i;
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -198,10 +201,11 @@ begin
 				plot <= clear_plot;
 				colour <= SW(17 downto 15);
 				
+				line_i := to_unsigned(8,line_i'length);
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(100,x1'length);
-				y0 <= to_unsigned(0,y0'length);
-				y1 <= to_unsigned(100,y1'length);
+				x1 <= to_unsigned(159,x1'length);
+				y0 <= line_i;
+				y1 <= to_unsigned(120,y1'length) - line_i;
 				
 				clear_reset <= '1';
 				clear_start <= '0';
@@ -224,10 +228,15 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
+				line_i := to_unsigned(8,line_i'length);
+--				x0 <= to_unsigned(0,x0'length);
+--				x1 <= to_unsigned(159,x1'length);
+--				y0 <= line_i;
+--				y1 <= to_unsigned(120,y1'length) - line_i;
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(100,x1'length);
-				y0 <= to_unsigned(0,y0'length);
-				y1 <= to_unsigned(100,y1'length);
+				x1 <= to_unsigned(159,x1'length);
+				y0 <= to_unsigned(50,y0'length);
+				y1 <= to_unsigned(50,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -236,12 +245,12 @@ begin
 								
 				-- Next State
 				if (line_done = '1') then
-					current_state := STATE_3_WAIT;
+					current_state := STAGE_3_PREPARE_LINE;
 				else
 					current_state := STATE_2_DRAW_LINE;
 				end if;
 				
-			when STATE_3_WAIT =>
+			when STAGE_3_PREPARE_LINE =>
 				-- State Outputs
 				LEDG <= "00000111";
 				
@@ -250,10 +259,11 @@ begin
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
+				line_i := to_unsigned(16,line_i'length);
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(100,x1'length);
-				y0 <= to_unsigned(100,y0'length);
-				y1 <= to_unsigned(0,y1'length);
+				x1 <= to_unsigned(159,x1'length);
+				y0 <= line_i;
+				y1 <= to_unsigned(120,y1'length) - line_i;
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -261,25 +271,30 @@ begin
 				line_start <= '1';
 								
 				-- Next State
-				if (KEY(2) = '0') then
-					current_state := STATE_4_DRAW_LINE;
+				if (KEY(1) = '0') then
+					current_state := STATE_3_DRAW_LINE;
 				else
-					current_state := STATE_3_WAIT;
+					current_state := STAGE_3_PREPARE_LINE;
 				end if;
 				
-			when STATE_4_DRAW_LINE =>
+			when STATE_3_DRAW_LINE =>
 				-- State Outputs
-				LEDG <= "00000011";
+				LEDG <= "00001111";
 				
 				x <= std_logic_vector(line_x);
 				y <= std_logic_vector(line_y(6 downto 0));
 				plot <= line_plot;
 				colour <= not SW(17 downto 15);
 				
+				line_i := to_unsigned(16,line_i'length);
+--				x0 <= to_unsigned(0,x0'length);
+--				x1 <= to_unsigned(159,x1'length);
+--				y0 <= line_i;
+--				y1 <= to_unsigned(120,y1'length) - line_i;
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(100,x1'length);
-				y0 <= to_unsigned(100,y0'length);
-				y1 <= to_unsigned(0,y1'length);
+				x1 <= to_unsigned(159,x1'length);
+				y0 <= to_unsigned(30,y0'length);
+				y1 <= to_unsigned(80,y1'length);
 				
 				clear_reset <= '0';
 				clear_start <= '1';
@@ -290,7 +305,7 @@ begin
 				if (line_done = '1') then
 					current_state := STATE_COMPLETE;
 				else
-					current_state := STATE_4_DRAW_LINE;
+					current_state := STATE_3_DRAW_LINE;
 				end if;
 						
 			when others =>

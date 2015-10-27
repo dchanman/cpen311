@@ -127,32 +127,36 @@ x_y_looper : process(x_y_looper_reset, CLOCK)
     elsif rising_edge(CLOCK) then
         -- check if we are finished
         if not ((x_out = X1) and (y_out = Y1)) then
-          
-          
+        
           
           -- if e2 > -dy
           if (e2 > - ("00" & dy)) then
             err := err - to_integer("00" & dy);
+            e2 := err & "0";
+            if not (x_out = X1) then
             case sx is
             when SLOPE_POSITIVE =>
               x_out <= x_out + 1;
             when SLOPE_NEGATIVE =>
               x_out <= x_out - 1;
             end case;
+            end if;
           end if;
           
           
           
           
           -- if e2 < dx
-          if (e2 < dx) then
+          if (e2 < ("00" & dx)) then
             err := err + to_integer("00" & dx);
+            if not (y_out = Y1) then
             case sy is
             when SLOPE_POSITIVE =>
               y_out <= y_out + 1;
             when SLOPE_NEGATIVE =>
               y_out <= y_out - 1;
             end case;
+            end if;
           end if;     
           
           
