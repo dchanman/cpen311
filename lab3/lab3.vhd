@@ -59,7 +59,7 @@ architecture rtl of lab3 is
     DONE  : out std_logic);
 	end component;
 	
-	type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_COMPLETE);
+	type MY_STATES is (STATE_0_INITIALIZE, STATE_1_CLEAR_SCREEN, STATE_2_DRAW_LINE, STATE_COMPLETE);
 
 	signal x			: std_logic_vector(7 downto 0);
 	signal y			: std_logic_vector(6 downto 0);
@@ -192,9 +192,9 @@ begin
 				colour <= SW(17 downto 15);
 				
 				x0 <= to_unsigned(0,x0'length);
-				x1 <= to_unsigned(0,x1'length);
+				x1 <= to_unsigned(100,x1'length);
 				y0 <= to_unsigned(0,y0'length);
-				y1 <= to_unsigned(0,y1'length);
+				y1 <= to_unsigned(100,y1'length);
 				
 				clear_reset <= '1';
 				clear_start <= '0';
@@ -203,9 +203,35 @@ begin
 								
 				-- Next State
 				if (clear_done = '1') then
-					current_state := STATE_COMPLETE;
+					current_state := STATE_2_DRAW_LINE;
 				else
 					current_state := STATE_1_CLEAR_SCREEN;
+				end if;
+				
+			when STATE_2_DRAW_LINE =>
+				-- State Outputs
+				LEDG <= "00000001";
+				
+				x <= std_logic_vector(line_x);
+				y <= std_logic_vector(line_y(6 downto 0));
+				plot <= line_plot;
+				colour <= not SW(17 downto 15);
+				
+				x0 <= to_unsigned(0,x0'length);
+				x1 <= to_unsigned(100,x1'length);
+				y0 <= to_unsigned(0,y0'length);
+				y1 <= to_unsigned(100,y1'length);
+				
+				clear_reset <= '0';
+				clear_start <= '1';
+				line_reset <= '1';
+				line_start <= '0';
+								
+				-- Next State
+				if (line_done = '1') then
+					current_state := STATE_COMPLETE;
+				else
+					current_state := STATE_2_DRAW_LINE;
 				end if;
 						
 			when others =>
