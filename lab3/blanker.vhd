@@ -133,6 +133,6 @@ begin
 
      xout <= std_logic_vector(x_counter);
      yout <= std_logic_vector(y_counter);
-     colour <= "100";
+     colour <= "000";
      
    end impl;
