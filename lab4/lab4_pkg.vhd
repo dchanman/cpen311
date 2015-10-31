@@ -16,7 +16,19 @@ package lab4_pkg is
     x : unsigned(7 downto 0);
     y : unsigned(7 downto 0);
   end record;
-
+  
+  constant FRAC_BITS : natural := 8;
+  constant INT_BITS : natural := 8;
+  type frac_point is record
+    x : unsigned(FRAC_BITS+INT_BITS-1 downto 0);
+    y : unsigned(FRAC_BITS+INT_BITS-1 downto 0);
+  end record;
+  
+    type frac_velocity is record
+    x : signed(FRAC_BITS+INT_BITS-1 downto 0);
+    y : signed(FRAC_BITS+INT_BITS-1 downto 0);
+  end record;
+  
   -- A new type that describes a velocity.  Each component of the
   -- velocity can be either + or -, so use signed type
   type velocity is record
@@ -43,7 +55,7 @@ package lab4_pkg is
 									DRAW_LEFT_ENTER, DRAW_LEFT_LOOP, IDLE, 
 									ERASE_PADDLE_ENTER, ERASE_PADDLE_LOOP, 
 									DRAW_PADDLE_ENTER, DRAW_PADDLE_LOOP, 
-									ERASE_PUCK, DRAW_PUCK);
+									ERASE_PUCK, DRAW_PUCK, ERASE_PUCK_2, DRAW_PUCK_2);
 
   -- Here are some constants that we will use in the code. 
  
@@ -59,8 +71,10 @@ package lab4_pkg is
   constant LEFT_LINE : natural := 5;
 
   -- These constants describe the starting location for the puck 
-  constant FACEOFF_X : natural := SCREEN_WIDTH/2;
+  constant FACEOFF_X : natural := SCREEN_WIDTH/2 + 20;
   constant FACEOFF_Y : natural := SCREEN_HEIGHT/2;
+  constant FACEOFF_2_X : natural := SCREEN_WIDTH/2 - 20;
+  constant FACEOFF_2_Y : natural := SCREEN_HEIGHT/2;
   
   -- This constant indicates how many times the counter should count in the
   -- START state between each invocation of the main loop of the program.
