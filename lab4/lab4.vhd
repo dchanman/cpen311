@@ -36,6 +36,7 @@ use work.lab4_pkg.all; -- types and constants that we will use
 entity lab4 is
   port(CLOCK_50            : in  std_logic;  -- Clock pin
        KEY                 : in  std_logic_vector(3 downto 0);  -- push button switches
+       SW                  : in std_logic_vector(17 downto 0);
        VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);  -- The outs go to VGA controller
        VGA_HS              : out std_logic;
        VGA_VS              : out std_logic;
@@ -69,7 +70,7 @@ begin
   
   vga_u0 : vga_adapter
     generic map(RESOLUTION => "160x120") 
-    port map(resetn    => KEY(3),
+    port map(resetn    => SW(0),
              clock     => CLOCK_50,
              colour    => colour,
              x         => x,
@@ -111,6 +112,7 @@ begin
 	 
     -- This variable will store the x position of the paddle (left-most pixel of the paddle)
 	 variable paddle_x : unsigned(draw.x'range);
+	 variable paddle_2_x : unsigned(draw.x'range);
 	 
 	 -- These variables will store the puck and the puck velocity.
 	 -- In this implementation, the puck velocity has two components: an x component
@@ -130,17 +132,19 @@ begin
     variable seconds_counter : natural := 0;
     variable var_pad_width : natural := PADDLE_WIDTH;
     variable gravity : frac_velocity;
+    variable var_padding : natural := 0;
 
  begin
  
     -- first see if the reset button has been pressed.  If so, we need to
 	 -- reset to state INIT
 	 
-    if KEY(3) = '0' then
+    if SW(0) = '0' then
            draw <= (x => to_unsigned(0, draw.x'length),
                  y => to_unsigned(0, draw.y'length));			  
            paddle_x := to_unsigned(PADDLE_X_START, paddle_x'length);
-			  
+			     paddle_2_x := to_unsigned(PADDLE_2_X_START, paddle_x'length);
+			     
 			  puck.x := to_unsigned(FACEOFF_X, puck.x'length );
 			  puck.y := to_unsigned(FACEOFF_Y, puck.y'length );
 			  puck_2.x := to_unsigned(FACEOFF_2_X, puck.x'length );
@@ -176,8 +180,8 @@ begin
            draw <= (x => to_unsigned(0, draw.x'length),
                  y => to_unsigned(0, draw.y'length));			  
            paddle_x := to_unsigned(PADDLE_X_START, paddle_x'length);
-			  
-		    --puck.x := to_unsigned(FACEOFF_X, puck.x'length );
+			     paddle_2_x := to_unsigned(PADDLE_2_X_START, paddle_x'length);
+		    --ppaddle_x := to_unsigned(PADDLE_X_START, paddle_x'length);uck.x := to_unsigned(FACEOFF_X, puck.x'length );
 			  --puck.y := to_unsigned(FACEOFF_Y, puck.y'length );
 			  puck.x := to_unsigned(FACEOFF_X, INT_BITS) & "00000000";
 			  puck.y := to_unsigned(FACEOFF_Y, INT_BITS ) & "00000000";
@@ -348,7 +352,7 @@ begin
 			     -- We are done, so get things set up for the IDLE state, which 
 				  -- comes next.  
 				  
-              state := IDLE;  -- next state is IDLE
+              state := DRAW_MIDPOINT;  -- next state is IDLE
 				  clock_counter := 0;  -- initialize counter we will use in IDLE  
 				  
             else
@@ -358,7 +362,30 @@ begin
               draw.y <= draw.y + to_unsigned(1, draw.y'length);
             end if;	
 				  
-		  
+		  		  when DRAW_MIDPOINT =>				
+			  draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
+			  draw.x <= to_unsigned(MID_POINT - 1, draw.x'length);	
+			  colour <= WHITE;
+		    state := DRAW_MIDPOINT_LOOP;
+		    
+		     		  when DRAW_MIDPOINT_LOOP =>
+
+		  -- See if we have been in this state long enough to have completed the line		  
+          if draw.x = MID_POINT + 1 then
+
+			     -- We are done, so get things set up for the IDLE state, which 
+				  -- comes next.  
+				  
+              state := IDLE;  -- next state is IDLE
+				  clock_counter := 0;  -- initialize counter we will use in IDLE  
+				  
+            else
+				
+				  -- Otherwise, update draw.x to point to the next pixel					
+              draw.x <= draw.x + to_unsigned(1, draw.x'length);
+              draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
+            end if;	
+            
 		  -- ============================================================
         -- The IDLE state is basically a delay state.  If we didn't have this,
 		  -- we'd be updating the puck location and paddle far too quickly for the
@@ -452,13 +479,18 @@ begin
 				  -- the user has pressed one of the buttons.
 				  
 				  
-				  
+				  if(var_pad_width = 5) or (var_pad_width = 7) or (var_pad_width = 9) then
+				    var_padding := 1;
+				   else
+				    var_padding := 0;
+				  end if;
+				     
 				  if (KEY(0) = '0') then 
 				  
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
 					  
-				     if paddle_x <= to_unsigned(RIGHT_LINE - var_pad_width - 2, paddle_x'length) then 
+				     if paddle_x <= to_unsigned(RIGHT_LINE - var_pad_width - var_padding - 2, paddle_x'length) then 
 
      					   -- add 2 to the paddle position
                   	paddle_x := paddle_x + to_unsigned(2, paddle_x'length) ;
@@ -471,7 +503,7 @@ begin
 				     -- If the user has pressed the left button check to make sure we
 					  -- are not already at the leftmost position of the screen
 				  
-				     if paddle_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
+				     if paddle_x >= to_unsigned(MID_POINT + 3, paddle_x'length) then 				 
 					 
 					      -- subtract 2 from the paddle position 
    				      paddle_x := paddle_x - to_unsigned(2, paddle_x'length) ;						
@@ -482,12 +514,6 @@ begin
               
               		      --first sort out if the size should be decremented
               		      --seconds_counter increments 8 times a second so 20 seconds is 160
-				  		   if(seconds_counter = 160 and var_pad_width > 4) then
-                var_pad_width := var_pad_width - 1;
-                seconds_counter := 0;
-              elsif(seconds_counter > 161) then
-                seconds_counter := 0;
-              end if;
               
               
    		     draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);				  
@@ -511,6 +537,131 @@ begin
 				  -- If we are done drawing the paddle, set up for the next stateZ:/cpen311/lab4/lab4_pkg.vhd
 				  
               plot  <= '0';  
+              state := ERASE_PADDLE2_ENTER;	-- next state is ERASE_PUCK
+				else		
+				
+				  -- Otherwise, update the x counter to the next location in the paddle 
+              draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
+              draw.x <= draw.x + to_unsigned(1, draw.x'length);
+
+				  -- state stays the same so we come back to this state until we
+				  -- are done drawing the paddle
+
+				  end if;
+				  
+				  --SECOND PADDLE TIME!
+				when ERASE_PADDLE2_ENTER =>		  
+              draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
+		     	  draw.x <= paddle_2_x;	
+              colour <= BLACK;
+              plot <= '1';			
+              state := ERASE_PADDLE2_LOOP;				 
+				  
+		  -- ============================================================
+        -- In the ERASE_PADDLE_LOOP state, we will erase the rest of the paddle. 
+		  -- Since the paddle consists of multiple pixels, we will stay in this state for
+		  -- multiple cycles.  draw.x will be used as the counter variable that
+		  -- cycles through the pixels that make up the paddle.
+		  -- ============================================================
+		  
+		  when ERASE_PADDLE2_LOOP =>
+		  
+		      -- See if we are done erasing the paddle (done with this state)
+            if draw.x = paddle_2_x+var_pad_width then			
+				
+				  -- If so, the next state is DRAW_PADDLE_ENTER. 
+				  
+              state := DRAW_PADDLE2_ENTER;  -- next state is DRAW_PADDLE 
+
+            else
+
+				  -- we are not done erasing the paddle.  Erase the pixel and update
+				  -- draw.x by increasing it by 1
+   		     draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);
+              draw.x <= draw.x + to_unsigned(1, draw.x'length);
+				  
+				  -- state stays the same, since we want to come back to this state
+				  -- next time through the process (next rising clock edge) until 
+				  -- the paddle has been erased
+				  
+            end if;
+
+		  -- ============================================================
+        -- The DRAW_PADDLE_ENTER state will start drawing the paddle.  In 
+		  -- this state, the paddle position is updated based on the keys, and
+		  -- then the first pixel of the paddle is drawn.  We then immediately
+		  -- go to DRAW_PADDLE_LOOP to draw the rest of the pixels of the paddle.
+		  -- ============================================================
+		  
+		  when DRAW_PADDLE2_ENTER =>
+		  
+
+
+              
+				  -- We need to figure out the x lcoation of the paddle before the 
+				  -- start of DRAW_PADDLE_LOOP.  The x location does not change, unless
+				  -- the user has pressed one of the buttons.
+				  
+				  
+				  
+				  if (KEY(2) = '0') then 
+				  
+				     -- If the user has pressed the right button check to make sure we
+					  -- are not already at the rightmost position of the screen
+					   
+				     if paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - var_padding - 3, paddle_x'length) then 
+
+     					   -- add 2 to the paddle position
+                  	paddle_2_x := paddle_2_x + to_unsigned(2, paddle_x'length) ;
+					  end if;
+				     -- If the user has pressed the right button check to make sure we
+					  -- are not already at the rightmost position of the screen
+					  
+				  elsif (KEY(3) = '0') then
+				  
+				     -- If the user has pressed the left button check to make sure we
+					  -- are not already at the leftmost position of the screen
+				  
+				     if paddle_2_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
+					 
+					      -- subtract 2 from the paddle position 
+   				      paddle_2_x := paddle_2_x - to_unsigned(2, paddle_x'length) ;						
+					  end if;
+				  end if;
+
+              -- In this state, draw the first element of the paddle	
+              
+              		      --first sort out if the size should be decremented
+              		      --seconds_counter increments 8 times a second so 20 seconds is 160
+				  		   if(seconds_counter = 160 and var_pad_width > 4) then
+                var_pad_width := var_pad_width - 1;
+                seconds_counter := 0;
+              elsif(seconds_counter > 161) then
+                seconds_counter := 0;
+              end if;
+              
+              
+   		     draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);				  
+				  draw.x <= paddle_2_x;  -- get ready for next state			  
+              --colour <= WHITE; -- when we draw the paddle, the colour will be WHITE		  
+              colour <= PURPLE; -- Changing paddle colour to purple	  
+		        state := DRAW_PADDLE2_LOOP;
+
+		  -- ============================================================
+        -- The DRAW_PADDLE_LOOP state will draw the rest of the paddle. 
+		  -- Again, because we can only update one pixel per cycle, we will 
+		  -- spend multiple cycles in this state.  
+		  -- ============================================================
+		  
+		  when DRAW_PADDLE2_LOOP =>
+		  
+		      -- See if we are done drawing the paddle
+
+            if draw.x = paddle_2_x+var_pad_width then
+				
+				  -- If we are done drawing the paddle, set up for the next stateZ:/cpen311/lab4/lab4_pkg.vhd
+				  
+              plot  <= '0';  
               state := ERASE_PUCK;	-- next state is ERASE_PUCK
 				else		
 				
@@ -522,7 +673,6 @@ begin
 				  -- are done drawing the paddle
 
 				  end if;
-				
 		  -- ============================================================
         -- The ERASE_PUCK state erases the puck from its old location   
 		  -- At also calculates the new location of the puck. Note that since
@@ -541,37 +691,27 @@ begin
 				  -- update the location of the puck 
 				  puck.x := unsigned( signed(puck.x) + puck_velocity.x);
 				  puck.y := unsigned( signed(puck.y) + puck_velocity.y);
-	--			  puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) := unsigned(signed(puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS)) + puck_velocity.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS));
-	--			  puck.x(FRAC_BITS-1 downto 0) := unsigned(signed(puck.x(FRAC_BITS-1 downto 0)) + puck_velocity.x(FRAC_BITS-1 downto 0));
-	--			  puck.y := ( unsigned(signed(puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS)) + puck_velocity.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS)) & unsigned(signed(puck.y(FRAC_BITS-1 downto 0)) + puck_velocity.y(FRAC_BITS-1 downto 0)));
-				  
+	
 				  -- See if we have bounced off the top of the screen
 				  if puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = TOP_LINE + 1 then
 				     puck_velocity.y := 0-puck_velocity.y;
 				  end if;
 				  
-		--		  if puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = TOP_LINE + 1 then
-	--			     puck_velocity.y := ((0 - puck_velocity.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS)) & (0 - puck_velocity.y(FRAC_BITS-1 downto 0)));
-	--			  end if;
-				  
+
 				  -- See if we have bounced off the right or left of the screen				
 				    if puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = LEFT_LINE + 1 or
 	         puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = RIGHT_LINE - 1 then
 				     puck_velocity.x := 0-puck_velocity.x;
 				  end if;				  
-			--	  if puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = LEFT_LINE + 1 or
-		--		     puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = RIGHT_LINE - 1 then
-	--		      puck_velocity.x := ((0 - puck_velocity.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS)) & (0 - puck_velocity.x(FRAC_BITS-1 downto 0)));
-		--		  end if;				  
+			  
 		
               -- See if we have bounced of the paddle on the bottom row of
 	           -- the screen		
-				  
 		      if puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = PADDLE_ROW - 1 or puck.y(INT_BITS + FRAC_BITS -1 downto FRAC_BITS) = PADDLE_ROW then
-				     if puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_x and puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_x + var_pad_width then
-		--			  if puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = PADDLE_ROW - 1 then
-				--     if puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_x and puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_x + var_pad_width then
-				       
+				     if (puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_x and puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_x + var_pad_width) or
+				         (puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_2_x and puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_2_x + var_pad_width) or
+				         (puck.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= MID_POINT - 1 and puck.x(INT_BITS + FRAC_BITS - 1 downto FRAC_BITS) <= MID_POINT + 1) then
+	
 					     -- we have bounced off the paddle
 					     puck.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) := to_unsigned(PADDLE_ROW - 1, INT_BITS);
    				     puck_velocity.y := 0-puck_velocity.y;
@@ -627,8 +767,10 @@ begin
               -- See if we have bounced of the paddle on the bottom row of
 	           -- the screen		
 				  
-		        if puck_2.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = PADDLE_ROW - 1 or puck_2.y(INT_BITS + FRAC_BITS -1 downto FRAC_BITS) = PADDLE_ROW then
-				     if puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_x and puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_x + var_pad_width then
+          if puck_2.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) = PADDLE_ROW - 1 or puck_2.y(INT_BITS + FRAC_BITS -1 downto FRAC_BITS) = PADDLE_ROW then
+				     if (puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_x and puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_x + var_pad_width) or
+				         (puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= paddle_2_x and puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) <= paddle_2_x + var_pad_width) or
+				        (puck_2.x(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) >= MID_POINT - 1 and puck_2.x(INT_BITS + FRAC_BITS - 1 downto FRAC_BITS) <= MID_POINT + 1) then
 					  
 					     -- we have bounced off the paddle
 					     puck_2.y(INT_BITS+FRAC_BITS-1 downto FRAC_BITS) := to_unsigned(PADDLE_ROW - 1, INT_BITS);

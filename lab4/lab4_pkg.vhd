@@ -52,7 +52,10 @@ package lab4_pkg is
   type draw_state_type is (INIT, START, 
                            DRAW_TOP_ENTER, DRAW_TOP_LOOP, 
 									DRAW_RIGHT_ENTER, DRAW_RIGHT_LOOP,
-									DRAW_LEFT_ENTER, DRAW_LEFT_LOOP, IDLE, 
+									DRAW_LEFT_ENTER, DRAW_LEFT_LOOP, DRAW_MIDPOINT,
+									DRAW_MIDPOINT_LOOP, IDLE,
+									ERASE_PADDLE2_ENTER, ERASE_PADDLE2_LOOP, 
+									DRAW_PADDLE2_ENTER, DRAW_PADDLE2_LOOP,  
 									ERASE_PADDLE_ENTER, ERASE_PADDLE_LOOP, 
 									DRAW_PADDLE_ENTER, DRAW_PADDLE_LOOP, 
 									ERASE_PUCK, DRAW_PUCK, ERASE_PUCK_2, DRAW_PUCK_2);
@@ -62,13 +65,14 @@ package lab4_pkg is
   -- These constants contain information about the paddle 
   constant PADDLE_WIDTH : natural := 10;  -- width, in pixels, of the paddle
   constant PADDLE_ROW : natural := SCREEN_HEIGHT - 2;  -- row to draw the paddle 
-  constant PADDLE_X_START : natural := SCREEN_WIDTH / 2;  -- starting x position of the paddle
-
+  constant PADDLE_X_START : natural := SCREEN_WIDTH / 2 + 30;  -- starting x position of the paddle
+  constant PADDLE_2_X_START : natural := SCREEN_WIDTH / 2 - 30;  -- starting x position of the paddle
   -- These constants describe the lines that are drawn around the  
   -- border of the screen  
   constant TOP_LINE : natural := 4;
   constant RIGHT_LINE : natural := SCREEN_WIDTH - 5;
   constant LEFT_LINE : natural := 5;
+  constant MID_POINT : natural := SCREEN_WIDTH / 2;
 
   -- These constants describe the starting location for the puck 
   constant FACEOFF_X : natural := SCREEN_WIDTH/2 + 20;
