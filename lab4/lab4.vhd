@@ -494,6 +494,8 @@ begin
 
      					   -- add 2 to the paddle position
                   	paddle_x := paddle_x + to_unsigned(2, paddle_x'length) ;
+                	elsif paddle_x <= to_unsigned(RIGHT_LINE - var_pad_width - 2, paddle_x'length) then
+                	 paddle_x := paddle_x + to_unsigned(1, paddle_x'length) ; 
 					  end if;
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
@@ -506,7 +508,9 @@ begin
 				     if paddle_x >= to_unsigned(MID_POINT + 3, paddle_x'length) then 				 
 					 
 					      -- subtract 2 from the paddle position 
-   				      paddle_x := paddle_x - to_unsigned(2, paddle_x'length) ;						
+   				      paddle_x := paddle_x - to_unsigned(2, paddle_x'length) ;			
+ 				      elsif paddle_x >= to_unsigned(MID_POINT + 2, paddle_x'length) then 	
+ 				        paddle_x := paddle_x - to_unsigned(1, paddle_x'length) ;			
 					  end if;
 				  end if;
 
@@ -613,6 +617,8 @@ begin
 
      					   -- add 2 to the paddle position
                   	paddle_2_x := paddle_2_x + to_unsigned(2, paddle_x'length) ;
+                  	 elsif paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - 3, paddle_x'length) then 
+                  	   paddle_2_x := paddle_2_x + to_unsigned(1, paddle_x'length) ;
 					  end if;
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
@@ -625,7 +631,9 @@ begin
 				     if paddle_2_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
 					 
 					      -- subtract 2 from the paddle position 
-   				      paddle_2_x := paddle_2_x - to_unsigned(2, paddle_x'length) ;						
+   				      paddle_2_x := paddle_2_x - to_unsigned(2, paddle_x'length) ;			
+				     elsif paddle_2_x >= to_unsigned(LEFT_LINE + 1, paddle_x'length) then
+				      			paddle_2_x := paddle_2_x - to_unsigned(1, paddle_x'length) ;	
 					  end if;
 				  end if;
 
