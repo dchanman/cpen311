@@ -131,6 +131,7 @@ begin
     variable clock_counter : natural := 0;	 
     variable seconds_counter : natural := 0;
     variable var_pad_width : natural := PADDLE_WIDTH;
+    variable var_pad2_width : natural := PADDLE_WIDTH;
     variable gravity : frac_velocity;
     variable var_padding : natural := 0;
 
@@ -177,6 +178,7 @@ begin
  
  
         var_pad_width := PADDLE_WIDTH;
+         var_pad2_width := PADDLE_WIDTH;
            draw <= (x => to_unsigned(0, draw.x'length),
                  y => to_unsigned(0, draw.y'length));			  
            paddle_x := to_unsigned(PADDLE_X_START, paddle_x'length);
@@ -443,7 +445,7 @@ begin
 		  when ERASE_PADDLE_LOOP =>
 		  
 		      -- See if we are done erasing the paddle (done with this state)
-            if draw.x = paddle_x+var_pad_width then			
+            if draw.x = paddle_x+var_pad2_width then			
 				
 				  -- If so, the next state is DRAW_PADDLE_ENTER. 
 				  
@@ -479,22 +481,17 @@ begin
 				  -- the user has pressed one of the buttons.
 				  
 				  
-				  if(var_pad_width = 5) or (var_pad_width = 7) or (var_pad_width = 9) then
-				    var_padding := 1;
-				   else
-				    var_padding := 0;
-				  end if;
 				     
 				  if (KEY(0) = '0') then 
 				  
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
 					  
-				     if paddle_x <= to_unsigned(RIGHT_LINE - var_pad_width - var_padding - 2, paddle_x'length) then 
+				     if paddle_x < to_unsigned(RIGHT_LINE - var_pad2_width - 2, paddle_x'length) then 
 
      					   -- add 2 to the paddle position
                   	paddle_x := paddle_x + to_unsigned(2, paddle_x'length) ;
-                	elsif paddle_x <= to_unsigned(RIGHT_LINE - var_pad_width - 2, paddle_x'length) then
+                	elsif paddle_x <= to_unsigned(RIGHT_LINE - var_pad2_width - 2, paddle_x'length) then
                 	 paddle_x := paddle_x + to_unsigned(1, paddle_x'length) ; 
 					  end if;
 				     -- If the user has pressed the right button check to make sure we
@@ -504,20 +501,28 @@ begin
 				  
 				     -- If the user has pressed the left button check to make sure we
 					  -- are not already at the leftmost position of the screen
-				  
-				     if paddle_x >= to_unsigned(MID_POINT + 3, paddle_x'length) then 				 
-					 
+				     if paddle_x >= to_unsigned(MID_POINT + 4, paddle_x'length) then 				 
 					      -- subtract 2 from the paddle position 
    				      paddle_x := paddle_x - to_unsigned(2, paddle_x'length) ;			
- 				      elsif paddle_x >= to_unsigned(MID_POINT + 2, paddle_x'length) then 	
- 				        paddle_x := paddle_x - to_unsigned(1, paddle_x'length) ;			
+			--		  end if;
+			--		  else
+					    elsif paddle_x >= to_unsigned(MID_POINT + 3, paddle_x'length) and paddle_x <= to_unsigned(MID_POINT + 4, paddle_x'length) then 				 
+					      -- subtract 2 from the paddle position 
+   				      paddle_x := paddle_x - to_unsigned(1, paddle_x'length) ;			
 					  end if;
+		--			 end if;
 				  end if;
 
               -- In this state, draw the first element of the paddle	
               
               		      --first sort out if the size should be decremented
               		      --seconds_counter increments 8 times a second so 20 seconds is 160
+   				  		   if(seconds_counter = 160 and var_pad2_width > 4) then
+                var_pad2_width := var_pad2_width - 1;
+            --  seconds_counter := 0;
+           --   elsif(seconds_counter > 161) then
+              --  seconds_counter := 0;
+              end if;
               
               
    		     draw.y <= to_unsigned(PADDLE_ROW, draw.y'length);				  
@@ -536,7 +541,7 @@ begin
 		  
 		      -- See if we are done drawing the paddle
 
-            if draw.x = paddle_x+var_pad_width then
+            if draw.x = paddle_x+var_pad2_width then
 				
 				  -- If we are done drawing the paddle, set up for the next stateZ:/cpen311/lab4/lab4_pkg.vhd
 				  
@@ -613,12 +618,11 @@ begin
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
 					   
-				     if paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - var_padding - 3, paddle_x'length) then 
-
+				    if paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - 4, paddle_x'length) then 
      					   -- add 2 to the paddle position
                   	paddle_2_x := paddle_2_x + to_unsigned(2, paddle_x'length) ;
-                  	 elsif paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - 3, paddle_x'length) then 
-                  	   paddle_2_x := paddle_2_x + to_unsigned(1, paddle_x'length) ;
+          	 elsif paddle_2_x <= to_unsigned(MID_POINT - var_pad_width - 3, paddle_x'length) then 
+               	   paddle_2_x := paddle_2_x + to_unsigned(1, paddle_x'length) ;
 					  end if;
 				     -- If the user has pressed the right button check to make sure we
 					  -- are not already at the rightmost position of the screen
@@ -628,13 +632,12 @@ begin
 				     -- If the user has pressed the left button check to make sure we
 					  -- are not already at the leftmost position of the screen
 				  
-				     if paddle_2_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
-					 
+				     if paddle_2_x > to_unsigned(LEFT_LINE + 2, paddle_x'length) then 				 
 					      -- subtract 2 from the paddle position 
    				      paddle_2_x := paddle_2_x - to_unsigned(2, paddle_x'length) ;			
-				     elsif paddle_2_x >= to_unsigned(LEFT_LINE + 1, paddle_x'length) then
-				      			paddle_2_x := paddle_2_x - to_unsigned(1, paddle_x'length) ;	
-					  end if;
+					  elsif paddle_2_x >= to_unsigned(LEFT_LINE + 2, paddle_x'length) and paddle_2_x <= to_unsigned(LEFT_LINE + 2, paddle_x'length) then 			
+			       	paddle_2_x := paddle_2_x - to_unsigned(1, paddle_x'length) ;
+			       	end if;
 				  end if;
 
               -- In this state, draw the first element of the paddle	
