@@ -29,19 +29,42 @@ architecture rtl of ksa is
 		   wren		: IN STD_LOGIC ;
 		   q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
    END component;
+   
+  COMPONENT dec_msg_ram  IS
+	   PORT (
+		   address		: IN STD_LOGIC_VECTOR (4 DOWNTO 0);
+		   clock		: IN STD_LOGIC  := '1';
+		   data		: IN STD_LOGIC_VECTOR (7 DOWNTO 0);
+		   wren		: IN STD_LOGIC ;
+		   q		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0));
+   END component;
+
+  component msg_rom IS 
+  PORT (
+		address	 : IN std_logic_vector(4 downto 0);
+		clock	 : IN std_logic;
+		q	 : OUT std_logic_vector);
+	end component;
 
 	-- Enumerated type for the state variable.  You will likely be adding extra
 	-- state names here as you complete your design
 	
 	type state_type is (state_init, 
-                       state_fill,	read_Si, waitState1, compute_j, waitState2, write_Si, write_Sj,					
+                       state_fill,	read_Si, waitState1, compute_j, waitState2, write_Si, write_Sj,	
+                       compute_i, wait3, comp_j, wait4, write_Si2, write_Sj2, read_k, wait5, write_out,				
    	 					  state_done);
 								
     -- These are signals that are used to connect to the memory													 
 	 signal address : STD_LOGIC_VECTOR (7 DOWNTO 0);	 
+	 signal address_m : STD_LOGIC_VECTOR (4 DOWNTO 0);	
+	 signal address_d : STD_LOGIC_VECTOR (4 DOWNTO 0);
 	 signal data : STD_LOGIC_VECTOR (7 DOWNTO 0);
-	 signal wren : STD_LOGIC;
+	 signal wren : STD_LOGIC;	 
+	 signal data_d : STD_LOGIC_VECTOR (7 DOWNTO 0);
+	 signal wren_d: STD_LOGIC;
 	 signal q : STD_LOGIC_VECTOR (7 DOWNTO 0);	
+	 signal q_m : STD_LOGIC_VECTOR (7 DOWNTO 0);	
+	 signal q_d : STD_LOGIC_VECTOR (7 DOWNTO 0);	
 	 signal clk : std_logic;
 	 signal reset : std_logic;
 	 signal secret_key : std_logic_vector(23 downto 0);
@@ -54,7 +77,18 @@ architecture rtl of ksa is
 	    -- Include the S memory structurally
        u0: s_memory port map (
 	        address, clk, data, wren, q);
-			  
+			 u1: msg_rom PORT MAP (
+		      address	 => address_m,
+	       	clock	 => clk,
+	       	q	 => q_m);
+	     u2 : dec_msg_ram PORT MAP (
+		      address	 => address_d,
+		      clock	 => clk,
+	       	data	 => data_d,
+	       	wren	 => wren_d,
+	       	q	 => q_d);
+
+
        -- write your code here.  As described in Slide Set 14, this 
        -- code will drive the address, data, and wren signals to
        -- fill the memory with the values 0...255
@@ -68,6 +102,9 @@ architecture rtl of ksa is
          variable j : natural := 0;
          variable Si : natural := 0;
          variable Sj : natural := 0;
+         variable k : natural := 0;
+         variable f : natural := 0;
+         variable en_in : natural := 0;
          begin
           if(reset = '1') then
            --reset
@@ -96,7 +133,10 @@ architecture rtl of ksa is
              --more stuff
            when read_Si =>
              if(i > 255) then
-              state := state_done;
+              state := compute_i;
+              i := 0;
+              j := 0;
+              k := 0;
               wren <= '0';
             else
              address <= std_logic_vector(to_unsigned(i, address'length));
@@ -128,14 +168,61 @@ architecture rtl of ksa is
                wren <= '1';
               Sj := to_integer(unsigned(q));
               address <= std_logic_vector(to_unsigned(j, address'length));
-              data <= std_logic_vector(to_unsigned(Si, address'length));
+              data <= std_logic_vector(to_unsigned(Si, data'length));
               state := write_Sj;
             when write_Sj =>
               wren <= '1';
               address <= std_logic_vector(to_unsigned(i, address'length));
-              data <= std_logic_vector(to_unsigned(Sj, address'length));
+              data <= std_logic_vector(to_unsigned(Sj, data'length));
               state := read_Si;
               i := i + 1;
+           when compute_i =>
+             if(k > 31) then
+              state := state_done;
+            else
+              i := ((i + 1) mod 256);
+              address <= std_logic_vector(to_unsigned(i, address'length));
+              state := wait3;
+            end if;
+          when wait3 =>
+            state := comp_j;
+             Si := to_integer(unsigned(q));
+          when comp_j =>
+             Si := to_integer(unsigned(q));
+             j := ((j + Si) mod 256);
+             address <= std_logic_vector(to_unsigned(j, address'length));
+             state := wait4;
+           when wait4 =>
+             state := write_Si2;
+             Sj := to_integer(unsigned(q));
+           when write_Si2 =>
+              wren <= '1';
+              Sj := to_integer(unsigned(q));
+              address <= std_logic_vector(to_unsigned(j, address'length));
+              data <= std_logic_vector(to_unsigned(Si, data'length));
+              state := write_Sj2;
+            when write_Sj2 =>
+              wren <= '1';
+              address <= std_logic_vector(to_unsigned(i, address'length));
+              data <= std_logic_vector(to_unsigned(Sj, data'length));
+              state := read_k;
+            when read_k =>
+              wren <= '0';
+              address <= std_logic_vector(to_unsigned(((Si + Sj) mod 256), address'length));
+              address_m <= std_logic_vector(to_unsigned(k, address_m'length));
+              state := wait5;
+            when wait5 =>
+              state := write_out;
+              f := to_integer(unsigned(q));
+              en_in := to_integer(unsigned(q_m));
+            when write_out =>
+              f := to_integer(unsigned(q));
+              en_in := to_integer(unsigned(q_m));
+              address_d <= std_logic_vector(to_unsigned(k, address_d'length));
+              data_d <= std_logic_vector(to_unsigned(f, data_d'length) xor to_unsigned(en_in, data_d'length));
+              wren_d <= '1';
+              k := k + 1;
+              state := compute_i;
            when state_done =>
              state := state_done;
              wren <= '0';
