@@ -49,7 +49,7 @@ architecture rtl of ksa is
 	-- Enumerated type for the state variable.  You will likely be adding extra
 	-- state names here as you complete your design
 	
-	type state_type is (state_init, 
+	type state_type is (state_init, incr_key,
                        state_fill,	read_Si, waitState1, compute_j, waitState2, write_Si, write_Sj,	
                        compute_i, wait3, comp_j, wait4, write_Si2, write_Sj2, read_k, wait5, write_out,				
    	 					  state_done);
@@ -67,13 +67,14 @@ architecture rtl of ksa is
 	 signal q_d : STD_LOGIC_VECTOR (7 DOWNTO 0);	
 	 signal clk : std_logic;
 	 signal reset : std_logic;
-	 signal secret_key : std_logic_vector(23 downto 0);
+	 signal secret_key : unsigned(23 downto 0) := (others => '0');
 
 	 begin
 	   	clk <= CLOCK_50;
 	   	--clk <= KEY(1);
 	   	reset <= not(KEY(0));
-	   	secret_key <= "000000" & SW(17 downto 0);
+	  -- 	secret_key <= "000000" & SW(17 downto 0);
+	  
 	    -- Include the S memory structurally
        u0: s_memory port map (
 	        address, clk, data, wren, q);
@@ -105,15 +106,20 @@ architecture rtl of ksa is
          variable k : natural := 0;
          variable f : natural := 0;
          variable en_in : natural := 0;
+         variable val : natural := 0;
          begin
           if(reset = '1') then
            --reset
            i := 0;
-           LEDG(7) <= '0';
+           LEDG <= (others => '0');
+           LEDR <= (others => '0');
            state := state_init;
+           secret_key <= (others => '0');
           elsif rising_edge(clk) then
            case state is
            when state_init =>
+            secret_key <= (others => '0');
+            -- secret_key <= "000000001111111100000000";
              i := 0;
              state := state_fill;
              --do stuff
@@ -131,6 +137,19 @@ architecture rtl of ksa is
               i := i + 1;
             end if;
              --more stuff
+           when incr_key =>
+              i := 0;
+              j := 0;
+              wren <= '0';
+              secret_key <= to_unsigned((to_integer(secret_key) + 1), secret_key'length);
+              LEDR <= std_logic_vector(secret_key(17 downto 0));
+              if(to_integer(unsigned(secret_key)) > 8388608) then
+                state := state_done;
+                LEDG(0) <= '1';
+              else
+                i := 0;
+                state := state_fill;
+              end if;
            when read_Si =>
              if(i > 255) then
               state := compute_i;
@@ -152,9 +171,9 @@ architecture rtl of ksa is
              Si := to_integer(unsigned(q));
              j := j + Si;
              case (i mod 3) is
-              when 0 => j := j + to_integer(unsigned(secret_key(23 downto 16)));
-              when 1 => j := j + to_integer(unsigned(secret_key(15 downto 8)));
-              when 2 => j := j + to_integer(unsigned(secret_key(7 downto 0)));
+              when 0 => j := j + to_integer(secret_key(23 downto 16));
+              when 1 => j := j + to_integer(secret_key(15 downto 8));
+              when 2 => j := j + to_integer(secret_key(7 downto 0));
               when others => j := j;
             end case;
            --j := j + to_integer(((unsigned(secret_key))(i mod 3)));
@@ -179,6 +198,7 @@ architecture rtl of ksa is
            when compute_i =>
              if(k > 31) then
               state := state_done;
+              LEDG(7) <= '1';
             else
               i := ((i + 1) mod 256);
               address <= std_logic_vector(to_unsigned(i, address'length));
@@ -222,19 +242,21 @@ architecture rtl of ksa is
               data_d <= std_logic_vector(to_unsigned(f, data_d'length) xor to_unsigned(en_in, data_d'length));
               wren_d <= '1';
               k := k + 1;
-              state := compute_i;
+              val := to_integer(to_unsigned(f, data_d'length) xor to_unsigned(en_in, data_d'length));
+              if (val = 32) or ((val > 96) and (val < 123)) then
+                state := compute_i;
+              else
+                state := incr_key;
+              end if;
            when state_done =>
              state := state_done;
+             LEDR <= std_logic_vector(secret_key(17 downto 0));
              wren <= '0';
-             LEDG(7) <= '1';
              --over
            when others =>
              --nothing
            end case;
           end if;
-          
-          LEDR(7 downto 0) <= std_logic_vector(to_unsigned(i, 8));
-          LEDR(17 downto 10) <= std_logic_vector(to_unsigned(j, 8));
          end process;
          
   
