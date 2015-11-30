@@ -9,7 +9,13 @@ entity ksa is
        KEY : in  std_logic_vector(3 downto 0);  -- push button switches
        SW : in  std_logic_vector(17 downto 0);  -- slider switches
 		 LEDG : out std_logic_vector(7 downto 0);  -- green lights
-		 LEDR : out std_logic_vector(17 downto 0));  -- red lights
+		 LEDR : out std_logic_vector(17 downto 0);
+		 lcd_rw : out std_logic;
+       lcd_en : out std_logic;
+       lcd_rs : out std_logic;
+       lcd_on : out std_logic;
+       lcd_blon : out std_logic;
+       lcd_data : out std_logic_vector(7 downto 0));  -- red lights
 end ksa;
 
 -- Architecture part of the description
@@ -50,7 +56,7 @@ end component ;
 	-- Enumerated type for the state variable.  You will likely be adding extra
 	-- state names here as you complete your design
 	
-	type state_type is (state_init, state_print, write, state_done_printing, next_char,				
+	type state_type is (state_init, state_print, state_write, state_done_printing, next_char,				
    	 					  state_done);
 								
     -- These are signals that are used to connect to the memory													 
@@ -79,15 +85,9 @@ end component ;
 	 signal c4_done : std_logic := '0';
 	 signal c4_found : std_logic := '0';
 	 
-	 	signal	 displ_char :  std_logic_vector(7 downto 0);
-		signal displ_write :  std_logic;
-		signal  displ_ready :  std_logic;
-    signal    lcd_rw :  std_logic;
-    signal   lcd_en :  std_logic;
-    signal    lcd_rs :  std_logic;
-    signal   lcd_on :  std_logic;
-    signal   lcd_blon :  std_logic;
-    signal   lcd_data :  std_logic_vector(7 downto 0);
+	 signal displ_char :  std_logic_vector(7 downto 0);
+	 signal displ_write :  std_logic;
+	 signal displ_ready :  std_logic;
 	 
 	 begin
 	   	clk <= CLOCK_50;
@@ -138,7 +138,7 @@ end component ;
 		   
 		 lcd: lcd_driver	port map ( 
 	     clk => clk,
-		  resetb => reset,
+		  resetb => not reset, -- this is a reset BUTTON, resets on 0
 		  displ_char => displ_char,
 		  displ_write => displ_write,
 		  displ_ready => displ_ready,
@@ -224,38 +224,55 @@ end component ;
               LEDG(0) <= '1';
            end if;
            
-          when state_print =>
-            address_d <= std_logic_vector(to_unsigned(i, address_d'length));
+			  ---------------------------------------------------------
+			  -- Code to handle printing to the LCD
+			  ---------------------------------------------------------
+			  -- a) Wait for displ_ready to become '1' 
+           when state_print =>
+				address_d <= std_logic_vector(to_unsigned(i, address_d'length));
+				displ_write <= '0';
+				LEDG(3 downto 1) <= "001";
             if(displ_ready = '1') then
-              state := write;
+              state := state_write;
             else
               state := state_print;
             end if;
-          when write =>
-            displ_char <= q_d;
-            if(displ_ready = '0') then
-            state := next_char;
-            i := i + 1;
-          else
-            state := write;
-          end if;
-       when next_char =>
-         if(i > 31) then
-         state := state_done_printing;
-       else
-         address_d <= std_logic_vector(to_unsigned(i, address_d'length));
-         state := state_print;
-       end if;
-     when state_done_printing =>
-       state := state_done_printing;
-           when others =>
+           
+			  -- b) Set displ_write to ‘1’ and send the ASCII code for the character on displ_char
+			  -- c) Wait for displ_ready to go to 0
+			  when state_write =>
+				displ_char <= "01100100";--q_d;
+				displ_write <= '1';
+				LEDG(3 downto 1) <= "010";
+				if(displ_ready = '0') then
+				  state := next_char;
+				  i := i + 1;
+           else
+			    state := state_write;
+           end if;
+           
+			  -- d) Set displ_write to ‘0’ and go back to step (a) to display the next character
+			  when next_char =>
+				displ_write <= '0';
+				LEDG(3 downto 1) <= "011";
+				if(i > 31) then
+				  state := state_done_printing;
+            else
+				  address_d <= std_logic_vector(to_unsigned(i, address_d'length));
+				  state := state_print;
+            end if;
+           
+			  -- Finished! Stay here forever
+			  when state_done_printing =>
+				state := state_done_printing;
+				LEDG(3 downto 1) <= "111";
+           
+			  when others =>
              --nothing
            end case;
-          end if;
-         end process;
-         
-  
-
+         end if;
+       end process;
+		 
 end RTL;
 
 
